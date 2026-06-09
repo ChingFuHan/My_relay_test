@@ -1,0 +1,33 @@
+{
+  "name": "gpt-5-5-pro-relay",
+  "version": "0.1.0+codex.20260609085543",
+  "description": "Relay Codex prompts to ChatGPT Extended Pro and return the response.",
+  "author": {
+    "name": "Prompt Case"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "GPT Relay",
+    "shortDescription": "Relay, resume, and poll ChatGPT Extended Pro from Codex.",
+    "longDescription": "GPT Relay uses the existing Chrome plugin session to open ChatGPT, select requested visible ChatGPT Intelligence options, send prompts, attach supported files through ChatGPT upload controls, keep the ChatGPT tab open, wait for the assistant to finish in persisted chunks by default, store session metadata, continue prior conversations, optionally poll backgrounded answers, save generated image artifacts locally, export completed Deep Research reports to Markdown artifacts, and return assistant responses, reports, or generated images to Codex.",
+    "developerName": "Prompt Case",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Browser Automation",
+      "File Upload",
+      "Session Memory",
+      "Long Running Tasks",
+      "Image Artifacts",
+      "Deep Research Artifacts"
+    ],
+    "defaultPrompt": [
+      "Use GPT 5.5 Pro Extended to analyze this question.",
+      "Run Deep Research on this topic.",
+      "Switch to GPT 5.4 Thinking Light and analyze this image."
+    ],
+    "brandColor": "#10A37F",
+    "composerIcon": "./assets/logo.png",
+    "logo": "./assets/logo.png"
+  }
+}

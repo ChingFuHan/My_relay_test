@@ -1,0 +1,20 @@
+{
+  "name": "gpt-relay",
+  "interface": {
+    "displayName": "GPT Relay"
+  },
+  "plugins": [
+    {
+      "name": "gpt-5-5-pro-relay",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gpt-5-5-pro-relay"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

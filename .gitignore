@@ -1,0 +1,7 @@
+.DS_Store
+node_modules/
+*.log
+dist/
+tmp/
+relay_uploads/
+*.local.*
