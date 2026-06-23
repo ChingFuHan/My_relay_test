@@ -3,6 +3,11 @@ import path from "node:path";
 import { execFile } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import {
+  normalizeHostBridgeConfig,
+  resolveHostBridgeBrowser,
+  shouldUseHostBridge,
+} from "./adapters/host_bridge_adapter.mjs";
 
 const CHATGPT_URL = "https://chatgpt.com/";
 const DEFAULT_TIMEOUT_MS = 6 * 60 * 60 * 1000;
@@ -479,8 +484,15 @@ async function relayPrompt(options = {}) {
 }
 
 async function resolveBrowser(requestedBrowser) {
-  if (requestedBrowser) {
+  if (
+    requestedBrowser?.documentation &&
+    typeof requestedBrowser.documentation === "function"
+  ) {
     return requestedBrowser;
+  }
+
+  if (shouldUseHostBridge(requestedBrowser ?? {})) {
+    return await resolveHostBridgeBrowser(requestedBrowser ?? {});
   }
 
   if (globalThis.browser) {
@@ -513,6 +525,21 @@ async function resolveBrowser(requestedBrowser) {
   await connectedBrowser.documentation();
 
   return connectedBrowser;
+}
+
+function resolveBrowserProviderConfig(requestedBrowser) {
+  if (
+    requestedBrowser?.documentation &&
+    typeof requestedBrowser.documentation === "function"
+  ) {
+    return { provider: "direct-object" };
+  }
+
+  if (shouldUseHostBridge(requestedBrowser ?? {})) {
+    return normalizeHostBridgeConfig(requestedBrowser ?? {});
+  }
+
+  return { provider: "codex-extension" };
 }
 
 async function findBrowserClientModule() {
@@ -604,34 +631,45 @@ async function ensureComposer(tab) {
   let lastError = null;
 
   while (Date.now() < deadline) {
-    const composer = tab.playwright.getByRole("textbox", {
-      name: "Chat with ChatGPT",
-    });
+    const candidates = [
+      tab.playwright.getByRole("textbox", {
+        name: "Chat with ChatGPT",
+      }),
+      tab.playwright.getByRole("textbox", {
+        name: /chatgpt|對話|聊天/i,
+      }),
+      tab.playwright.locator("textarea[name='prompt-textarea']"),
+      tab.playwright.locator("[contenteditable='true'][role='textbox']"),
+    ];
 
-    try {
-      const count = await composer.count();
-      if (count === 1) {
-        return composer;
+    for (const composer of candidates) {
+      try {
+        const visible = await firstVisibleLocator(composer);
+        if (visible) {
+          return visible;
+        }
+      } catch (error) {
+        lastError = error;
       }
-    } catch (error) {
-      lastError = error;
     }
 
     await tab.playwright.waitForTimeout(500);
   }
 
-  const pageState = await readCompactPageState(tab);
-  if (/captcha|verify|verification/i.test(pageState.text)) {
+  const accessState = classifyChatGPTAccessStateSnapshot(
+    await readChatGPTAccessState(tab)
+  );
+  if (accessState.state === "verification-required") {
     throw codedError(
       "CHATGPT_VERIFICATION_REQUIRED",
-      "ChatGPT is showing a verification or CAPTCHA step."
+      accessState.message || "ChatGPT is showing a verification or CAPTCHA step."
     );
   }
 
-  if (/log in|sign up|login|sign in/i.test(pageState.text)) {
+  if (accessState.state === "guest-or-logged-out") {
     throw codedError(
       "CHATGPT_LOGIN_REQUIRED",
-      "ChatGPT is not logged in or the session is not ready."
+      accessState.message || "ChatGPT is not logged in or is running in guest mode."
     );
   }
 
@@ -1419,8 +1457,16 @@ async function findComposerModeControl(tab) {
     const buttons = [...document.querySelectorAll("button")].filter(isVisible);
     const composerTextbox = [...document.querySelectorAll("[role='textbox']")]
       .filter(isVisible)
-      .find((element) => element.getAttribute("aria-label") === "Chat with ChatGPT");
-    const textboxRect = composerTextbox ? rectOf(composerTextbox) : null;
+      .find((element) =>
+        /chatgpt|對話|聊天/i.test(element.getAttribute("aria-label") || "")
+      );
+    const composerTextarea = [...document.querySelectorAll("textarea[name='prompt-textarea']")]
+      .filter(isVisible)[0] ?? null;
+    const textboxRect = composerTextbox
+      ? rectOf(composerTextbox)
+      : composerTextarea
+        ? rectOf(composerTextarea)
+        : null;
     const candidates = buttons
       .map((element) => ({
         text: normalize(element.innerText || element.textContent),
@@ -2474,11 +2520,26 @@ async function pressPaste(tab, composer) {
 }
 
 async function clickSend(tab) {
-  const sendButton = tab.playwright.getByRole("button", {
-    name: "Send prompt",
-  });
+  const candidates = [
+    tab.playwright.getByRole("button", {
+      name: "Send prompt",
+    }),
+    tab.playwright.getByRole("button", {
+      name: /send prompt|傳送提示詞|送出提示詞|傳送/i,
+    }),
+    tab.playwright.locator("[data-testid='send-button']"),
+  ];
 
-  if ((await sendButton.count()) !== 1) {
+  let sendButton = null;
+  for (const candidate of candidates) {
+    const visible = await firstVisibleLocator(candidate);
+    if (visible) {
+      sendButton = visible;
+      break;
+    }
+  }
+
+  if (!sendButton) {
     throw codedError(
       "SEND_BUTTON_MISSING",
       "Could not find the ChatGPT send button after filling the prompt."
@@ -3021,7 +3082,8 @@ async function readChatState(tab) {
     );
 
     const responseActionsAvailable = buttonLabels.some((label) =>
-      /\b(copy response|more actions)\b/i.test(label)
+      /\b(copy response|more actions|share)\b/i.test(label) ||
+      /複製回應|更多動作|分享/.test(label)
     );
 
     function textOf(element) {
@@ -4422,6 +4484,106 @@ async function readCompactPageState(tab) {
   }, undefined, { timeoutMs: 5000 });
 }
 
+async function readChatGPTAccessState(tab) {
+  const pageState = await readCompactPageState(tab);
+
+  return await tab.playwright.evaluate((snapshot) => {
+    const normalize = (value) =>
+      String(value ?? "")
+        .trim()
+        .replace(/\s+/g, " ");
+
+    const bodyText = normalize(document.body?.innerText || document.body?.textContent || "");
+    const combined = normalize(`${snapshot.title} ${snapshot.text} ${bodyText}`).slice(0, 4000);
+
+    const hasComposer = Boolean(
+      document.querySelector("textarea[name='prompt-textarea'], [contenteditable='true'][role='textbox']")
+    );
+    const hasProfileButton = Boolean(
+      document.querySelector("[data-testid='accounts-profile-button']")
+    );
+    const hasSidebarProfileLikeButton = Array.from(document.querySelectorAll("button,[role='button']")).some(
+      (element) => /設定檔|profile|帳號|account/i.test(
+        normalize(
+          element.getAttribute("aria-label") ||
+          element.innerText ||
+          element.textContent
+        )
+      )
+    );
+
+    return {
+      combined,
+      hasComposer,
+      hasProfileButton,
+      hasSidebarProfileLikeButton,
+    };
+  }, pageState, { timeoutMs: 5000 });
+}
+
+function classifyChatGPTAccessStateSnapshot(snapshot = {}) {
+  const combined = String(snapshot.combined ?? "");
+  const hasComposer = Boolean(snapshot.hasComposer);
+  const hasProfileButton = Boolean(snapshot.hasProfileButton);
+  const hasSidebarProfileLikeButton = Boolean(snapshot.hasSidebarProfileLikeButton);
+
+  const verificationRequired = /captcha|verify|verification|驗證|確認你是人類|human/i.test(combined);
+  if (verificationRequired) {
+    return {
+      state: "verification-required",
+      message: "ChatGPT is showing a verification or CAPTCHA step.",
+      signals: {
+        hasComposer,
+        hasProfileButton,
+        hasSidebarProfileLikeButton,
+      },
+    };
+  }
+
+  const loginLike = /log in|login|sign in|sign up|登入|登錄|註冊|建立帳戶|continue with google|continue with apple/i.test(combined);
+  const guestLike = /guest|訪客|temporary chat|暫存對話|開啟暫存對話/i.test(combined);
+
+  if (!hasProfileButton && !hasSidebarProfileLikeButton && (loginLike || guestLike)) {
+    return {
+      state: "guest-or-logged-out",
+      message: guestLike
+        ? "ChatGPT appears to be in guest/temporary mode rather than a logged-in account."
+        : "ChatGPT appears to be logged out or waiting at the login/sign-up screen.",
+      signals: {
+        hasComposer,
+        hasProfileButton,
+        hasSidebarProfileLikeButton,
+        loginLike,
+        guestLike,
+      },
+    };
+  }
+
+  if (hasComposer && (hasProfileButton || hasSidebarProfileLikeButton)) {
+    return {
+      state: "logged-in",
+      message: "ChatGPT appears logged in and ready.",
+      signals: {
+        hasComposer,
+        hasProfileButton,
+        hasSidebarProfileLikeButton,
+      },
+    };
+  }
+
+  return {
+    state: "unknown",
+    message: "Could not confidently determine whether ChatGPT is logged in.",
+    signals: {
+      hasComposer,
+      hasProfileButton,
+      hasSidebarProfileLikeButton,
+      loginLike,
+      guestLike,
+    },
+  };
+}
+
 async function finalizeRelayTab(browser, tab, keepTab) {
   if (!browser?.tabs?.finalize) {
     return;
@@ -4835,9 +4997,12 @@ export const __testing = {
   verbatimFinalResponse,
   attachmentSignalSignature,
   isAttachmentUploadBusySignal,
+  readChatGPTAccessState,
   resolveIntelligenceRequest,
   parseIntelligenceRequestFromPrompt,
   formatIntelligenceLabel,
+  resolveBrowserProviderConfig,
+  classifyChatGPTAccessStateSnapshot,
 };
 
 function codedError(code, message, extra = {}) {

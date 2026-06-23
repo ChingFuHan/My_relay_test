@@ -1,0 +1,13 @@
+{
+  "name": "gpt-relay-host-bridge",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Host-side bridge for GPT Relay to control local Chrome over CDP.",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.53.0"
+  }
+}

@@ -55,6 +55,8 @@ When the user mentions phrases such as:
 - `5.4 instant`
 - `5.5 pro standard`
 - `5.5 pro extended`
+- `/chatgpt`
+- `/gpt`
 
 interpret that as a request to use this relay, unless the user is only asking a conceptual question.
 

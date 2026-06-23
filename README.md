@@ -74,6 +74,16 @@ If you want GPT Relay to upload local files or images to ChatGPT, enable file UR
 - **Allow access to file URLs** enabled if you want GPT Relay to upload local attachments.
 - Your ChatGPT account must have access to the model or mode you request. For example, Pro mode requires a ChatGPT Pro account.
 
+## Host-Bridge Path
+
+If Codex runs inside a Linux VM but your usable Chrome session is on a Windows host, use the host-bridge path in this repo.
+
+Start here:
+
+- [user_quick_start.md](./user_quick_start.md)
+- [docs/README.md](./docs/README.md)
+- [host-bridge/README.md](./host-bridge/README.md)
+
 ## Marketplace Package
 
 This repository is structured as a Codex plugin marketplace source. Codex needs:

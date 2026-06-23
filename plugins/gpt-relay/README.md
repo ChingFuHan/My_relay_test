@@ -30,6 +30,7 @@ By default this keeps the user's current visible ChatGPT Intelligence selection.
 ## Limits
 
 - Requires the Chrome plugin and a logged-in ChatGPT session.
+- Experimental alternative: use a host-side bridge service that talks to host Chrome over CDP when Codex runs inside a VM. See `../../host-bridge/README.md`.
 - Stops on login, CAPTCHA, permission, or account prompts.
 - Reports the visible ChatGPT Intelligence selection requested or observed; it does not claim hidden backend state.
 - Pro mode is the paid ChatGPT Pro Intelligence mode and only supports Standard or Extended effort.
@@ -108,6 +109,16 @@ nodeRepl.write(result.finalDeliveryText ?? result.finalResponseText);
 ```
 
 If the result is still `pending`, call `pollRelaySession` again later with the same query or session id.
+
+Routing shortcuts you can use in conversation:
+
+- `/codex ...` keeps the work in Codex only.
+- `/chatgpt ...` relays the remainder to ChatGPT through GPT Relay.
+- `/gpt ...` is an alias of `/chatgpt`.
+- `/chatgpt-continue ...` continues a stored GPT Relay conversation.
+- `/chatgpt-poll ...` polls a stored GPT Relay session instead of resending.
+
+The routing rules live in `plugins/gpt-relay/skills/relay-routing/SKILL.md`.
 
 Attach an original image or document through ChatGPT upload controls:
 

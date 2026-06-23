@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { __testing } from "./chatgpt_relay.mjs";
+import { __hostBridgeTesting } from "./adapters/host_bridge_adapter.mjs";
 
 test("prepareAttachment uses upload metadata for images by default", async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), "gpt55-relay-test-"));
@@ -553,4 +554,70 @@ test("intelligence request supports options overriding prompt", () => {
   assert.equal(request.mode, "pro");
   assert.equal(request.effort, "extended");
   assert.equal(request.source, "options");
+});
+
+test("browser provider config defaults to codex extension", () => {
+  const config = __testing.resolveBrowserProviderConfig();
+  assert.equal(config.provider, "codex-extension");
+});
+
+test("browser provider config recognizes host bridge request", () => {
+  const config = __testing.resolveBrowserProviderConfig({
+    provider: "host-bridge",
+    url: "http://127.0.0.1:8765/",
+    token: "secret",
+  });
+
+  assert.equal(config.provider, "host-bridge");
+  assert.equal(config.url, "http://127.0.0.1:8765");
+  assert.equal(config.token, "secret");
+});
+
+test("host bridge special encoding preserves regex and functions", () => {
+  const encoded = __hostBridgeTesting.encodeSpecial({
+    pattern: /hello/gi,
+    fn: () => "ok",
+  });
+
+  assert.deepEqual(encoded.pattern, {
+    __hostBridgeType: "RegExp",
+    source: "hello",
+    flags: "gi",
+  });
+  assert.equal(encoded.fn.__hostBridgeType, "Function");
+  assert.match(encoded.fn.source, /^\(\)\s*=>\s*"ok"$/);
+});
+
+test("ChatGPT access state detects logged-in workspace", () => {
+  const state = __testing.classifyChatGPTAccessStateSnapshot({
+    combined: "ChatGPT 與 ChatGPT 對話 CF Han Plus",
+    hasComposer: true,
+    hasProfileButton: true,
+    hasSidebarProfileLikeButton: true,
+  });
+
+  assert.equal(state.state, "logged-in");
+});
+
+test("ChatGPT access state detects guest or logged-out mode", () => {
+  const state = __testing.classifyChatGPTAccessStateSnapshot({
+    combined: "ChatGPT 開啟暫存對話 訪客 登入 註冊",
+    hasComposer: true,
+    hasProfileButton: false,
+    hasSidebarProfileLikeButton: false,
+  });
+
+  assert.equal(state.state, "guest-or-logged-out");
+  assert.match(state.message, /guest|logged out/i);
+});
+
+test("ChatGPT access state detects verification step", () => {
+  const state = __testing.classifyChatGPTAccessStateSnapshot({
+    combined: "ChatGPT verify you are human 驗證",
+    hasComposer: false,
+    hasProfileButton: false,
+    hasSidebarProfileLikeButton: false,
+  });
+
+  assert.equal(state.state, "verification-required");
 });
