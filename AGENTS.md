@@ -21,7 +21,14 @@ Minimal relay success was verified with prompt:
 
 ## Routing Convention
 
-Use these prefixes as explicit routing signals:
+The globally installed native Codex commands are:
+
+- `/prompts:chatgpt ...`
+- `/prompts:gpt ...`
+- `/prompts:chatgpt-continue ...`
+- `/prompts:chatgpt-poll ...`
+
+They expand into the following plugin skill routing prefixes:
 
 - `/codex ...`
   Keep the work in Codex only.
@@ -34,16 +41,21 @@ Use these prefixes as explicit routing signals:
 - `/chatgpt-poll ...`
   Poll a stored GPT Relay session instead of resending.
 
-These are skill/routing conventions, not guaranteed UI-native slash commands.
+`/chatgpt` and related prefixes are skill routing conventions. They become real slash-menu entries
+only after `scripts/install-global-codex-relay.sh` copies the templates into `~/.codex/prompts/`.
 
 ## Important Files
 
 - `plugins/gpt-relay/scripts/chatgpt_relay.mjs`
+- `plugins/gpt-relay/scripts/chatgpt_cli.mjs`
 - `plugins/gpt-relay/scripts/adapters/host_bridge_adapter.mjs`
 - `plugins/gpt-relay/skills/gpt-relay/SKILL.md`
 - `plugins/gpt-relay/skills/relay-routing/SKILL.md`
 - `host-bridge/server.mjs`
 - `user_quick_start.md`
+- `scripts/install-global-codex-relay.sh`
+- `docs/global_codex_setup.md`
+- `docs/new-codex-session.md`
 - `docs/agent_handoff_2026-06-24.md`
 
 ## Important Runtime Notes
@@ -73,6 +85,9 @@ Proven:
 
 - host-bridge connectivity
 - simple text relay through ChatGPT
+- ordinary Node CLI relay through host-bridge
+- isolated Codex marketplace install of `gpt-relay@gpt-relay-host-bridge`
+- global `/prompts:chatgpt` template installation
 
 Not yet fully validated after host-bridge integration:
 

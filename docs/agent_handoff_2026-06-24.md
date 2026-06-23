@@ -86,6 +86,31 @@ Purpose:
 - exact working commands
 - pitfalls found during bring-up
 
+### 6. Global Codex entry points
+
+New files:
+
+- `scripts/install-global-codex-relay.sh`
+- `templates/codex-prompts/chatgpt.md`
+- `templates/codex-prompts/gpt.md`
+- `templates/codex-prompts/chatgpt-continue.md`
+- `templates/codex-prompts/chatgpt-poll.md`
+- `plugins/gpt-relay/scripts/chatgpt_cli.mjs`
+- `docs/global_codex_setup.md`
+- `docs/new-codex-session.md`
+
+Purpose:
+
+- Install actual Codex custom slash commands under `~/.codex/prompts/`.
+- Make `/prompts:chatgpt` work from a fresh Codex CLI session in any directory.
+- Configure the bridge environment under `~/.config/gpt-relay/env.sh`.
+- Run host-bridge relay from an ordinary Node process, not only a Codex-specific Node REPL.
+
+Important distinction:
+
+- `/prompts:chatgpt` is a real custom command after global installation.
+- `/chatgpt` is the routing prefix expanded by that custom command; it is not an independently registered built-in command.
+
 ## What Was Actually Verified
 
 ### Verified end-to-end path

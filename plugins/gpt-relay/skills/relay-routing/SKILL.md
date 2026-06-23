@@ -1,6 +1,6 @@
 ---
 name: relay-routing
-description: Use when the user starts the message with /chatgpt, /gpt, /codex, /chatgpt-continue, or /chatgpt-poll to make the execution target explicit.
+description: Use when the user starts the message with /chatgpt, /gpt, /codex, /chatgpt-continue, or /chatgpt-poll, including expansion from `/prompts:chatgpt`, to make the execution target explicit.
 ---
 
 # Relay Routing

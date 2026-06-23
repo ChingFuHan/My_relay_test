@@ -9,12 +9,14 @@
 2. [new_agent_onboarding.md](./new_agent_onboarding.md)
    給新 agent 的超短入口，先看這份再進細節。
 3. [global_codex_setup.md](./global_codex_setup.md)
-   如果你要的是「直接套在 Codex 上」，先看這份。
-4. [../user_quick_start.md](../user_quick_start.md)
+   如果你要的是「直接套在 Codex 上」，先看這份；它會安裝真正的 `/prompts:chatgpt` 命令。
+4. [new-codex-session.md](./new-codex-session.md)
+   已安裝後，換到別的 repo 開新 Codex session 時怎麼使用。
+5. [../user_quick_start.md](../user_quick_start.md)
    目前已驗證的最短流程，對應 Windows host + Linux VM 範例。
-5. [agent_handoff_2026-06-24.md](./agent_handoff_2026-06-24.md)
+6. [agent_handoff_2026-06-24.md](./agent_handoff_2026-06-24.md)
    這次實作到底改了什麼、驗證到哪裡、還有哪些限制。
-6. [../AGENTS.md](../AGENTS.md)
+7. [../AGENTS.md](../AGENTS.md)
    給下一個 agent 的專案記憶與關鍵路徑。
 
 如果你只想確認目前是否已經可用：

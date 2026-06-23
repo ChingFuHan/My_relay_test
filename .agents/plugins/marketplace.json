@@ -1,5 +1,5 @@
 {
-  "name": "gpt-relay",
+  "name": "gpt-relay-host-bridge",
   "interface": {
     "displayName": "GPT Relay"
   },

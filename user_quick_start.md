@@ -309,20 +309,22 @@ statePath: "/tmp/gpt-relay/sessions.json"
 
 ---
 
-## 9. 建議 Slash 命令
+## 9. Codex Slash 命令
 
-這些前綴是建議你之後固定使用的 routing 寫法，讓你一眼知道現在請誰做事：
+先依 [docs/global_codex_setup.md](./docs/global_codex_setup.md) 完成一次全域安裝。之後這些
+是真的會出現在 Codex slash 選單中的命令：
 
-- `/codex <任務>`
-  只讓 Codex 本地處理，不 relay 到 ChatGPT。
-- `/chatgpt <任務>`
+- `/prompts:chatgpt <任務>`
   把後面的內容 relay 到 Windows Chrome 上的 ChatGPT。
-- `/gpt <任務>`
-  `/chatgpt` 的短別名。
-- `/chatgpt-continue <提示>`
+- `/prompts:gpt <任務>`
+  `/prompts:chatgpt` 的短別名。
+- `/prompts:chatgpt-continue <提示>`
   延續上一個 GPT Relay 對話。
-- `/chatgpt-poll <query 或 session id>`
+- `/prompts:chatgpt-poll <query 或 session id>`
   查長任務，不重送 prompt。
+
+`/chatgpt`、`/gpt`、`/chatgpt-continue`、`/chatgpt-poll` 仍是 plugin skill 內的路由前綴，
+但它們不是 Codex 內建 slash command。
 
 例子：
 
@@ -331,15 +333,15 @@ statePath: "/tmp/gpt-relay/sessions.json"
 ```
 
 ```text
-/chatgpt 請幫我解釋這個設計的 tradeoff
+/prompts:chatgpt 請幫我解釋這個設計的 tradeoff
 ```
 
 ```text
-/chatgpt-continue query=repo audit :: 接著做 security review
+/prompts:chatgpt-continue query=repo audit :: 接著做 security review
 ```
 
 ```text
-/chatgpt-poll query=deep research
+/prompts:chatgpt-poll query=deep research
 ```
 
 ---

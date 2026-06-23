@@ -14,14 +14,15 @@ From the Codex UI:
 
 | Field | Value |
 | --- | --- |
-| Source | `Toolsai/GPT-Relay-Codex-Plugin-` |
+| Source | `ChingFuHan/My_relay_test` |
 | Git ref | `main` |
 | Sparse paths | Leave blank for normal install. Optional: `.agents/plugins` and `plugins/gpt-relay`. |
 
 Or add the marketplace from the CLI:
 
 ```bash
-codex plugin marketplace add Toolsai/GPT-Relay-Codex-Plugin-
+codex plugin marketplace add ChingFuHan/My_relay_test --ref main
+codex plugin add gpt-relay@gpt-relay-host-bridge
 ```
 
 Then install **GPT Relay** from the Codex Plugins UI and open a new Codex thread.
@@ -30,7 +31,8 @@ The Add marketplace dialog installs this repository as a custom Codex marketplac
 
 ## Chrome Setup
 
-GPT Relay controls ChatGPT through your existing Chrome session, so you need the official Codex Chrome extension installed and enabled.
+The direct browser-provider path needs the official Codex Chrome extension. The `host-bridge` path
+uses Chrome CDP and does not require that extension for ordinary text relay.
 
 ### Install The Codex Chrome Extension
 
@@ -79,7 +81,7 @@ media/
 
 ## Limitations
 
-- Requires the official Codex Chrome extension and an active ChatGPT login.
+- Requires either the official Codex Chrome extension or this repository's host-bridge path, plus an active ChatGPT login.
 - Local file uploads require **Allow access to file URLs** to be enabled for the Codex Chrome extension.
 - Availability depends on your ChatGPT account.
 - The plugin operates the visible ChatGPT web UI, so ChatGPT UI changes may require plugin updates.
@@ -100,6 +102,25 @@ Start here:
 - [docs/deployment-modes.md](./docs/deployment-modes.md)
 - [docs/global_codex_setup.md](./docs/global_codex_setup.md)
 - [user_quick_start.md](./user_quick_start.md)
+
+## Use From Any Directory
+
+Install the bridge environment, plugin, and native Codex prompt commands once:
+
+```bash
+bash scripts/install-global-codex-relay.sh \
+  --bridge-url http://192.168.0.72:8765 \
+  --bridge-token 'change-me'
+```
+
+Open a new terminal and a new Codex thread in any repository, then use:
+
+```text
+/prompts:chatgpt <task for ChatGPT>
+```
+
+See [docs/global_codex_setup.md](./docs/global_codex_setup.md) and
+[docs/new-codex-session.md](./docs/new-codex-session.md).
 
 ## Developer
 

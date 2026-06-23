@@ -10,12 +10,15 @@
    看目前專案記憶、環境變數、路由慣例、關鍵檔案。
 4. [../user_quick_start.md](../user_quick_start.md)
    如果使用者場景剛好是 Windows host + Linux VM，這份是目前最短已驗證流程。
+5. [new-codex-session.md](./new-codex-session.md)
+   如果需求是「換一個 repo 開新 Codex 仍可問 ChatGPT」，先確認全域安裝與 prompt 命令。
 
 ## 30 秒版現況
 
 - 已驗證：Host/Guest 模式可透過 `host-bridge` 控制另一側的 Chrome 上的 ChatGPT
 - 已驗證：簡單文字 relay 可成功往返
 - 已補上：ChatGPT `logged-in` / `guest-or-logged-out` / `verification-required` 狀態判斷
+- 已補上：`/prompts:chatgpt` 等真正的全域 Codex custom prompts，以及一般 Node CLI 入口
 - 未完全驗證：圖片流程、檔案上傳、Deep Research 匯出、部分 continuation/polling
 
 ## 關鍵路徑

@@ -28,7 +28,7 @@ In Codex, open **Plugins** → **Manage** → **Create** → **Add marketplace**
 
 | Field | Value |
 | --- | --- |
-| Source | `Toolsai/GPT-Relay-Codex-Plugin-` |
+| Source | `ChingFuHan/My_relay_test` |
 | Git ref | `main` |
 | Sparse paths | Leave blank for the normal install. Optionally use `.agents/plugins` and `plugins/gpt-relay` if your Codex build asks for sparse checkout paths. |
 
@@ -39,14 +39,16 @@ After adding the marketplace, install **GPT Relay**, then start a new Codex thre
 Run this command in your Codex environment:
 
 ```bash
-codex plugin marketplace add Toolsai/GPT-Relay-Codex-Plugin-
+codex plugin marketplace add ChingFuHan/My_relay_test --ref main
+codex plugin add gpt-relay@gpt-relay-host-bridge
 ```
 
 Then install **GPT Relay** from the Codex Plugins UI and start a new Codex thread.
 
 ## Chrome Setup
 
-GPT Relay controls ChatGPT through your existing Chrome session, so you need the official Codex Chrome extension installed and enabled.
+The direct browser-provider path needs the official Codex Chrome extension. The `host-bridge` path
+uses Chrome CDP and does not require that extension for ordinary text relay.
 
 ### Install The Codex Chrome Extension
 
@@ -69,7 +71,7 @@ If you want GPT Relay to upload local files or images to ChatGPT, enable file UR
 ## Requirements
 
 - Codex with plugin support.
-- Official Codex Chrome extension installed and enabled.
+- Either the official Codex Chrome extension, or the `host-bridge` setup in this repo.
 - A logged-in ChatGPT session in Chrome.
 - **Allow access to file URLs** enabled if you want GPT Relay to upload local attachments.
 - Your ChatGPT account must have access to the model or mode you request. For example, Pro mode requires a ChatGPT Pro account.
@@ -91,6 +93,26 @@ Start here:
 - [docs/deployment-modes.md](./docs/deployment-modes.md)
 - [docs/global_codex_setup.md](./docs/global_codex_setup.md)
 - [host-bridge/README.md](./host-bridge/README.md)
+
+## Use In Every Codex Session
+
+To make the relay available from any directory, install the plugin, shell environment, and native
+Codex slash prompts once:
+
+```bash
+bash scripts/install-global-codex-relay.sh \
+  --bridge-url http://192.168.0.72:8765 \
+  --bridge-token 'change-me'
+```
+
+Then open a new terminal and Codex thread anywhere, and use:
+
+```text
+/prompts:chatgpt <task for ChatGPT>
+```
+
+See [docs/global_codex_setup.md](./docs/global_codex_setup.md) for the complete setup and
+[docs/new-codex-session.md](./docs/new-codex-session.md) for daily use.
 
 ## Marketplace Package
 
@@ -133,7 +155,7 @@ Switch to GPT 5.4 Thinking Light and analyze this image.
 To update the marketplace source later:
 
 ```bash
-codex plugin marketplace upgrade gpt-relay
+codex plugin marketplace upgrade gpt-relay-host-bridge
 ```
 
 Update or reinstall **GPT Relay** from the Codex Plugins UI, then start a new Codex thread.

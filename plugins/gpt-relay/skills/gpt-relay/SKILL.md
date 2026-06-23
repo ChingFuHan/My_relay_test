@@ -1,6 +1,6 @@
 ---
 name: gpt-relay
-description: Use when the user asks to use GPT 5.5 Pro, 5.5 pro, GPT 5.5, Extended Pro, Pro Extended, pro extend think, or similar wording to send a prompt or files to ChatGPT and bring the answer back into Codex.
+description: Use when the user explicitly asks to send, relay, or ask ChatGPT to do work and return its answer in Codex, including `/chatgpt`, `/gpt`, `/prompts:chatgpt`, GPT 5.5 Pro, Extended Pro, or similar wording.
 ---
 
 # GPT Relay
@@ -31,7 +31,10 @@ Use the helper script at `../../scripts/chatgpt_relay.mjs` to:
 
 ## Required Setup
 
-This skill depends on the Chrome plugin and its browser-client runtime.
+This skill supports either the Codex Chrome extension runtime or the configured `host-bridge`.
+For a Linux VM/Windows host setup, use `GPT_RELAY_BROWSER_PROVIDER=host-bridge` with the
+bridge URL and token. This path can run from an ordinary Node process; it does not require a
+special Codex browser tool in the current session.
 
 The helper auto-bootstraps the bundled Chrome plugin when `globalThis.browser` is missing.
 If auto-bootstrap fails, report the helper error code and ask the user to ensure the Chrome plugin is installed and the Codex Chrome extension is connected.
@@ -83,6 +86,29 @@ When the user asks to continue, reopen, list, search, resume, poll, or check an 
 - If the user does not explicitly ask to change the model, mode, or effort, keep the current ChatGPT selection. Do not force `5.5 Pro Extended`.
 - Pro mode is the paid ChatGPT Pro Intelligence mode. It only exposes `Standard` and `Extended` effort. Do not request `Light` or `Heavy` for Pro mode.
 - If the user requests Pro but the visible ChatGPT account does not expose Pro, report that Pro is unavailable and include the available models/modes/efforts from the helper error instead of falling back to another model.
+
+## Preferred CLI Usage
+
+Use the bundled CLI from the installed plugin with the normal shell tool. This works from any
+repository as long as the plugin and bridge environment are installed:
+
+```bash
+node "<plugin-root>/scripts/chatgpt_cli.mjs" ask --prompt "User prompt here"
+```
+
+For a continuation or a pending task:
+
+```bash
+node "<plugin-root>/scripts/chatgpt_cli.mjs" continue \
+  --query "高達模型" \
+  --prompt "請接著整理模型比例與入門建議。"
+
+node "<plugin-root>/scripts/chatgpt_cli.mjs" poll --query "高達模型"
+```
+
+The CLI prints `finalDeliveryText` verbatim when a relay completes. It prints JSON for pending
+or diagnostic results. Do not use a local Codex answer as a fallback when the user selected
+ChatGPT.
 
 ## Node REPL Usage
 
