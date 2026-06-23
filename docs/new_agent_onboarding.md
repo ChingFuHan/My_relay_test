@@ -12,6 +12,8 @@
    如果使用者場景剛好是 Windows host + Linux VM，這份是目前最短已驗證流程。
 5. [new-codex-session.md](./new-codex-session.md)
    如果需求是「換一個 repo 開新 Codex 仍可問 ChatGPT」，先確認全域安裝與 prompt 命令。
+6. [usage-codex-and-claude-code.md](./usage-codex-and-claude-code.md)
+   一份就懂 repo 在做什麼 + Codex 用法 + **Claude Code 用法**。要同時支援兩種 agent 先看這份。
 
 ## 30 秒版現況
 
@@ -19,12 +21,14 @@
 - 已驗證：簡單文字 relay 可成功往返
 - 已補上：ChatGPT `logged-in` / `guest-or-logged-out` / `verification-required` 狀態判斷
 - 已補上：可由 `@` 選取的 GPT Relay plugin，以及一般 Node CLI 入口
+- 已完成：**Claude Code 整合**。同一支 `mcp_server.mjs` 以 user scope 掛進 Claude Code（全域），實測 `ask` 經 :8765 → ChatGPT 回 OK。詳見 [usage-codex-and-claude-code.md](./usage-codex-and-claude-code.md)。
 - 未完全驗證：圖片流程、檔案上傳、Deep Research 匯出、部分 continuation/polling
 
 ## 關鍵路徑
 
 - Host bridge: [../host-bridge/README.md](../host-bridge/README.md)
 - Relay 主程式: [../plugins/gpt-relay/scripts/chatgpt_relay.mjs](../plugins/gpt-relay/scripts/chatgpt_relay.mjs)
+- MCP server（Codex/Claude Code 共用入口）: [../plugins/gpt-relay/scripts/mcp_server.mjs](../plugins/gpt-relay/scripts/mcp_server.mjs)
 - Host bridge adapter: [../plugins/gpt-relay/scripts/adapters/host_bridge_adapter.mjs](../plugins/gpt-relay/scripts/adapters/host_bridge_adapter.mjs)
 
 ## 最常用環境變數

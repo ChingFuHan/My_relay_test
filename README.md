@@ -6,6 +6,8 @@ GPT Relay is a Codex plugin that relays prompts from Codex to ChatGPT through yo
 
 It is designed for users who want Codex to ask ChatGPT with visible ChatGPT Intelligence options such as GPT 5.5 Pro Extended, GPT 5.4 Thinking Light, Deep Research, web search, image generation, and file uploads.
 
+> **Also works with Claude Code.** The relay core is a standard stdio MCP server, so Claude Code can register it directly (`claude mcp add gpt-relay ...`) and use the same `ask` / `continue` / `poll` / `list_sessions` tools in any directory. See [docs/usage-codex-and-claude-code.md](./docs/usage-codex-and-claude-code.md).
+
 > This is an independent community plugin by Prompt Case. It is not an official OpenAI or ChatGPT product.
 
 ## Demo

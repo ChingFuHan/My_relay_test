@@ -297,8 +297,42 @@ These may partly work, but were not validated in this bring-up session.
 5. Consider making `statePath` fallback independent from `nodeRepl` for direct shell use
 6. If this will be shared, move `host-bridge/` into remote source of truth and push upstream
 
+## Claude Code 整合(2026-06-24)
+
+延續本 session(Codex credits 用盡無法在 Codex 端實測 `@GPT Relay`),改把同一支 MCP server
+掛到 **Claude Code** 並實測成功。
+
+### 做了什麼
+
+- 把 `gpt-relay` MCP 以 **user scope(全域)** 註冊進 Claude Code:
+  ```bash
+  claude mcp add gpt-relay -s user \
+    -e GPT_RELAY_BROWSER_PROVIDER=host-bridge \
+    -e GPT_RELAY_HOST_BRIDGE_URL=http://192.168.0.72:8765 \
+    -e GPT_RELAY_HOST_BRIDGE_TOKEN=change-me \
+    -e GPT_RELAY_STATE_PATH=/home/xiaohan/.codex/gpt-relay/sessions.json \
+    -- node /home/xiaohan/git_other/GPT-Relay-Codex-Plugin-/plugins/gpt-relay/scripts/mcp_server.mjs
+  ```
+  `claude mcp get gpt-relay` → Scope: User、Status: ✔ Connected。
+- **portability 修正**(`mcp_server.mjs` 頂端):非 Codex 環境(沒有 `globalThis.nodeRepl`)時，
+  從 `GPT_RELAY_STATE_PATH`(預設 OS temp）設 `globalThis.__gpt55RelayStatePath`，
+  否則 Claude Code 啟動會丟 `SESSION_STORE_PATH_MISSING`（對應上面 Suggested Next Work #5）。
+  守衛條件含 `!globalThis.nodeRepl`，**Codex 完全不受影響**（仍走 `~/.codex/gpt-relay/sessions.json`）。
+  驗證：codex 模擬 import → `__gpt55RelayStatePath` 為 `undefined`；非 codex → temp 路徑。
+
+### 已驗證
+
+- 透過 stdio 對 `mcp_server.mjs` 送 `tools/call ask`「請只回覆 OK。」→
+  `status: complete`、`assistantText: "OK"`、回傳 conversationUrl。整條 Claude Code → :8765 → ChatGPT 打通。
+
+### 使用文件
+
+- [usage-codex-and-claude-code.md](./usage-codex-and-claude-code.md)（Codex + Claude Code 用法、知識傳承)
+
 ## Files To Read First For Continuation
 
+- [usage-codex-and-claude-code.md](/home/xiaohan/git_other/GPT-Relay-Codex-Plugin-/docs/usage-codex-and-claude-code.md)
+- [mcp_server.mjs](/home/xiaohan/git_other/GPT-Relay-Codex-Plugin-/plugins/gpt-relay/scripts/mcp_server.mjs)
 - [chatgpt_relay.mjs](/home/xiaohan/git_other/GPT-Relay-Codex-Plugin-/plugins/gpt-relay/scripts/chatgpt_relay.mjs)
 - [host_bridge_adapter.mjs](/home/xiaohan/git_other/GPT-Relay-Codex-Plugin-/plugins/gpt-relay/scripts/adapters/host_bridge_adapter.mjs)
 - [server.mjs](/home/xiaohan/git_other/GPT-Relay-Codex-Plugin-/host-bridge/server.mjs)

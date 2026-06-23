@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import os from "node:os";
 import readline from "node:readline";
 import { pathToFileURL } from "node:url";
 import {
@@ -8,6 +9,17 @@ import {
   pollRelaySession,
   runExtendedProRelay,
 } from "./chatgpt_relay.mjs";
+
+// When launched outside a Codex Node REPL (e.g. by Claude Code or a plain
+// `node` process) there is no `globalThis.nodeRepl`, so the relay cannot derive
+// a session-store path and throws SESSION_STORE_PATH_MISSING. Provide one from
+// GPT_RELAY_STATE_PATH (default under the OS temp dir) so the server is portable.
+// Gate on `!nodeRepl` so Codex is never affected: under Codex the relay keeps
+// deriving its own path (~/.codex/gpt-relay/sessions.json) untouched.
+if (!globalThis.__gpt55RelayStatePath && !globalThis.nodeRepl) {
+  globalThis.__gpt55RelayStatePath =
+    process.env.GPT_RELAY_STATE_PATH || `${os.tmpdir()}/gpt-relay/sessions.json`;
+}
 
 const PROTOCOL_VERSION = "2025-03-26";
 
