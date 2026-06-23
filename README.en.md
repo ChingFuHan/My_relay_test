@@ -113,10 +113,11 @@ bash scripts/install-global-codex-relay.sh \
   --bridge-token 'change-me'
 ```
 
-Open a new terminal and a new Codex thread in any repository, then use:
+Open a new terminal and a new Codex thread in any repository. In the composer, type `@`, select
+**GPT Relay**, then enter the task for ChatGPT:
 
 ```text
-/prompts:chatgpt <task for ChatGPT>
+Send this task to ChatGPT: <task>
 ```
 
 See [docs/global_codex_setup.md](./docs/global_codex_setup.md) and

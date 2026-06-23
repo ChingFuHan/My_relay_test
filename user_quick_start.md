@@ -309,22 +309,13 @@ statePath: "/tmp/gpt-relay/sessions.json"
 
 ---
 
-## 9. Codex Slash 命令
+## 9. Codex Plugin 入口
 
-先依 [docs/global_codex_setup.md](./docs/global_codex_setup.md) 完成一次全域安裝。之後這些
-是真的會出現在 Codex slash 選單中的命令：
+先依 [docs/global_codex_setup.md](./docs/global_codex_setup.md) 完成一次全域安裝。之後在 Codex
+composer 輸入 `@`，選取 **GPT Relay** plugin，再輸入你要交給 ChatGPT 的任務。
 
-- `/prompts:chatgpt <任務>`
-  把後面的內容 relay 到 Windows Chrome 上的 ChatGPT。
-- `/prompts:gpt <任務>`
-  `/prompts:chatgpt` 的短別名。
-- `/prompts:chatgpt-continue <提示>`
-  延續上一個 GPT Relay 對話。
-- `/prompts:chatgpt-poll <query 或 session id>`
-  查長任務，不重送 prompt。
-
-`/chatgpt`、`/gpt`、`/chatgpt-continue`、`/chatgpt-poll` 仍是 plugin skill 內的路由前綴，
-但它們不是 Codex 內建 slash command。
+`codex-cli 0.141.0` 實測不會把 `~/.codex/prompts/` 註冊為 slash command，因此不要使用
+`/prompts:chatgpt`。`@` plugin 選取器是目前可驗證的入口。
 
 例子：
 
@@ -333,15 +324,15 @@ statePath: "/tmp/gpt-relay/sessions.json"
 ```
 
 ```text
-/prompts:chatgpt 請幫我解釋這個設計的 tradeoff
+請交給 ChatGPT：請幫我解釋這個設計的 tradeoff
 ```
 
 ```text
-/prompts:chatgpt-continue query=repo audit :: 接著做 security review
+請使用先前 query=repo audit 的 ChatGPT 對話，接著做 security review。
 ```
 
 ```text
-/prompts:chatgpt-poll query=deep research
+請查詢 query=deep research 的 ChatGPT 既有工作，不要重送。
 ```
 
 ---

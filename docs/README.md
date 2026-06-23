@@ -9,7 +9,7 @@
 2. [new_agent_onboarding.md](./new_agent_onboarding.md)
    給新 agent 的超短入口，先看這份再進細節。
 3. [global_codex_setup.md](./global_codex_setup.md)
-   如果你要的是「直接套在 Codex 上」，先看這份；它會安裝真正的 `/prompts:chatgpt` 命令。
+   如果你要的是「直接套在 Codex 上」，先看這份；它會安裝可由 `@` 選取的 GPT Relay plugin。
 4. [new-codex-session.md](./new-codex-session.md)
    已安裝後，換到別的 repo 開新 Codex session 時怎麼使用。
 5. [../user_quick_start.md](../user_quick_start.md)

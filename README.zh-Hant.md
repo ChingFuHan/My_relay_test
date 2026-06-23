@@ -102,10 +102,11 @@ bash scripts/install-global-codex-relay.sh \
   --bridge-token 'change-me'
 ```
 
-之後重新開 terminal，在任何目錄啟動新的 Codex thread，使用：
+之後重新開 terminal，在任何目錄啟動新的 Codex thread，在 composer 輸入 `@` 並選取
+**GPT Relay**，再輸入：
 
 ```text
-/prompts:chatgpt <交給 ChatGPT 的任務>
+請交給 ChatGPT：<任務>
 ```
 
 完整設定看 [docs/global_codex_setup.md](./docs/global_codex_setup.md)，日常使用看

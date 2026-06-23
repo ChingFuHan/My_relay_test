@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Install the pieces that must live outside a repository: environment defaults,
-# native Codex prompt commands, and the marketplace-backed GPT Relay plugin.
+# Install the bridge environment and marketplace-backed GPT Relay plugin for
+# every Codex CLI session launched by this user.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 CONFIG_DIR="${HOME}/.config/gpt-relay"
 ENV_FILE="${CONFIG_DIR}/env.sh"
-PROMPT_DIR="${HOME}/.codex/prompts"
 MARKETPLACE_NAME="gpt-relay-host-bridge"
 MARKETPLACE_SOURCE="ChingFuHan/My_relay_test"
 BRIDGE_URL="${GPT_RELAY_HOST_BRIDGE_URL:-}"
 BRIDGE_TOKEN="${GPT_RELAY_HOST_BRIDGE_TOKEN:-}"
-FORCE_PROMPTS=false
 SKIP_PLUGIN=false
 
 usage() {
@@ -27,7 +24,6 @@ Options:
   --bridge-url URL          GPT Relay host-bridge URL.
   --bridge-token TOKEN      Host-bridge bearer token.
   --marketplace-source SRC  GitHub owner/repo, Git URL, or local repo path.
-  --force-prompts           Replace existing ~/.codex/prompts GPT Relay files.
   --skip-plugin             Do not add/install the Codex plugin.
   --help                    Show this help.
 
@@ -49,10 +45,6 @@ while [ "$#" -gt 0 ]; do
     --marketplace-source)
       MARKETPLACE_SOURCE="${2:?Missing value for --marketplace-source}"
       shift 2
-      ;;
-    --force-prompts)
-      FORCE_PROMPTS=true
-      shift
       ;;
     --skip-plugin)
       SKIP_PLUGIN=true
@@ -76,7 +68,7 @@ if { [ -n "${BRIDGE_URL}" ] && [ -z "${BRIDGE_TOKEN}" ]; } || \
   exit 2
 fi
 
-install -d -m 700 "${CONFIG_DIR}" "${PROMPT_DIR}"
+install -d -m 700 "${CONFIG_DIR}"
 
 if [ -n "${BRIDGE_URL}" ]; then
   umask 077
@@ -109,19 +101,9 @@ else
   printf 'Kept GPT Relay environment loading in %s\n' "${RC_FILE}"
 fi
 
-for template in "${REPO_ROOT}"/templates/codex-prompts/*.md; do
-  target="${PROMPT_DIR}/$(basename "${template}")"
-  if [ -e "${target}" ] && [ "${FORCE_PROMPTS}" != true ]; then
-    printf 'Kept existing prompt: %s\n' "${target}"
-  else
-    install -m 600 "${template}" "${target}"
-    printf 'Installed prompt: %s\n' "${target}"
-  fi
-done
-
 if [ "${SKIP_PLUGIN}" = false ]; then
   command -v codex >/dev/null || {
-    printf '%s\n' 'codex was not found in PATH; prompt files were installed but the plugin was skipped.' >&2
+    printf '%s\n' 'codex was not found in PATH; bridge environment was configured but plugin installation was skipped.' >&2
     exit 1
   }
 
@@ -141,14 +123,8 @@ cat <<EOF
 
 Global setup complete.
 
-Exit every already-running Codex CLI process first. Then open a new shell (or run: . "${RC_FILE}")
-and start a new Codex process in any directory. `/new` and switching to Plan mode do not reload
-custom prompts.
-Use these native Codex commands:
-  /prompts:chatgpt <task>
-  /prompts:gpt <task>
-  /prompts:chatgpt-continue query=<topic> :: <next instruction>
-  /prompts:chatgpt-poll query=<topic>
+Open a new shell (or run: . "${RC_FILE}"), then start Codex in any directory.
+In the Codex composer, type @, select GPT Relay, and enter the task for ChatGPT.
 
 The bridge must still be running and ChatGPT must remain logged in on its Chrome profile.
 EOF

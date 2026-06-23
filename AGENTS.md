@@ -19,31 +19,12 @@ Minimal relay success was verified with prompt:
 
 - `請只回覆 OK。`
 
-## Routing Convention
+## Codex Entry Point
 
-The globally installed native Codex commands are:
+In Codex CLI, type `@`, select **GPT Relay**, then describe the task to send to ChatGPT.
 
-- `/prompts:chatgpt ...`
-- `/prompts:gpt ...`
-- `/prompts:chatgpt-continue ...`
-- `/prompts:chatgpt-poll ...`
-
-They expand into the following plugin skill routing prefixes:
-
-- `/codex ...`
-  Keep the work in Codex only.
-- `/chatgpt ...`
-  Relay the remainder to ChatGPT through GPT Relay.
-- `/gpt ...`
-  Alias of `/chatgpt`.
-- `/chatgpt-continue ...`
-  Continue a stored GPT Relay conversation.
-- `/chatgpt-poll ...`
-  Poll a stored GPT Relay session instead of resending.
-
-`/chatgpt` and related prefixes are skill routing conventions. They become real slash-menu entries
-only after `scripts/install-global-codex-relay.sh` copies the templates into `~/.codex/prompts/`.
-Codex must then be fully restarted; `/new` or a new Plan-mode thread does not reload them.
+`codex-cli 0.141.0` did not register deprecated custom prompts as slash commands in a fresh TUI,
+despite the public manual documenting that surface. Do not direct users to `/prompts:*`.
 
 ## Important Files
 
@@ -88,7 +69,7 @@ Proven:
 - simple text relay through ChatGPT
 - ordinary Node CLI relay through host-bridge
 - isolated Codex marketplace install of `gpt-relay@gpt-relay-host-bridge`
-- global `/prompts:chatgpt` template installation
+- `@` plugin selector shows GPT Relay in a fresh Codex TUI
 
 Not yet fully validated after host-bridge integration:
 

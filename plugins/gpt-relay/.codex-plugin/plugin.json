@@ -1,6 +1,6 @@
 {
   "name": "gpt-relay",
-  "version": "0.1.0+codex.20260623174906",
+  "version": "0.1.0+codex.20260623210814",
   "description": "Relay Codex prompts to ChatGPT Extended Pro and return the response.",
   "author": {
     "name": "Prompt Case"

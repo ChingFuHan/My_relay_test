@@ -1,6 +1,6 @@
 ---
 name: gpt-relay
-description: Use when the user explicitly asks to send, relay, or ask ChatGPT to do work and return its answer in Codex, including `/chatgpt`, `/gpt`, `/prompts:chatgpt`, GPT 5.5 Pro, Extended Pro, or similar wording.
+description: Use when the user explicitly asks to send, relay, or ask ChatGPT to do work and return its answer in Codex, including GPT 5.5 Pro, Extended Pro, or similar wording.
 ---
 
 # GPT Relay
@@ -58,9 +58,6 @@ When the user mentions phrases such as:
 - `5.4 instant`
 - `5.5 pro standard`
 - `5.5 pro extended`
-- `/chatgpt`
-- `/gpt`
-
 interpret that as a request to use this relay, unless the user is only asking a conceptual question.
 
 When the user asks to continue, reopen, list, search, resume, poll, or check an earlier GPT 5.5 Pro conversation, use the exported session helpers instead of starting a new unrelated chat.
