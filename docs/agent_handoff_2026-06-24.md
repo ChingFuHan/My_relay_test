@@ -100,11 +100,18 @@ Purpose:
 - Make GPT Relay available through Codex's verified `@` plugin selector in any directory.
 - Configure the bridge environment under `~/.config/gpt-relay/env.sh`.
 - Run host-bridge relay from an ordinary Node process, not only a Codex-specific Node REPL.
+- Expose GPT Relay as plugin-provided MCP tools, avoiding this VM's broken sandbox shell path
+  (`bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted`).
 
 Important distinction:
 
 - `@` -> **GPT Relay** is the supported, verified Codex UI entry point.
 - Deprecated custom prompts did not register as slash commands in a fresh `codex-cli 0.141.0` TUI.
+- The plugin MCP server is `gpt-relay`, with `ask`, `continue`, `poll`, and
+  `list_sessions` tools. Its source entry is `plugins/gpt-relay/scripts/mcp_server.mjs`.
+- The host-bridge adapter safely parses only recognized exports from
+  `~/.config/gpt-relay/env.sh`; it never sources or evaluates that shell file. This covers Codex
+  launches that do not inherit `~/.bashrc`.
 
 ## What Was Actually Verified
 

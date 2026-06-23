@@ -4,7 +4,10 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { __testing } from "./chatgpt_relay.mjs";
-import { __hostBridgeTesting } from "./adapters/host_bridge_adapter.mjs";
+import {
+  __hostBridgeTesting,
+  parseRelayEnvironment,
+} from "./adapters/host_bridge_adapter.mjs";
 
 test("prepareAttachment uses upload metadata for images by default", async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), "gpt55-relay-test-"));
@@ -557,8 +560,36 @@ test("intelligence request supports options overriding prompt", () => {
 });
 
 test("browser provider config defaults to codex extension", () => {
-  const config = __testing.resolveBrowserProviderConfig();
-  assert.equal(config.provider, "codex-extension");
+  const previous = process.env.GPT_RELAY_ENV_FILE;
+  process.env.GPT_RELAY_ENV_FILE = path.join(
+    os.tmpdir(),
+    "gpt-relay-missing-env-" + Date.now()
+  );
+  try {
+    const config = __testing.resolveBrowserProviderConfig();
+    assert.equal(config.provider, "codex-extension");
+  } finally {
+    if (previous === undefined) {
+      delete process.env.GPT_RELAY_ENV_FILE;
+    } else {
+      process.env.GPT_RELAY_ENV_FILE = previous;
+    }
+  }
+});
+
+test("host bridge environment parser reads only supported safe export values", () => {
+  assert.deepEqual(
+    parseRelayEnvironment([
+      "export GPT_RELAY_BROWSER_PROVIDER=host-bridge",
+      "export GPT_RELAY_HOST_BRIDGE_URL='http://192.168.0.72:8765'",
+      "export PATH=/unsafe",
+      "export GPT_RELAY_HOST_BRIDGE_TOKEN=$(do-not-run)",
+    ].join("\n")),
+    {
+      GPT_RELAY_BROWSER_PROVIDER: "host-bridge",
+      GPT_RELAY_HOST_BRIDGE_URL: "http://192.168.0.72:8765",
+    }
+  );
 });
 
 test("browser provider config recognizes host bridge request", () => {

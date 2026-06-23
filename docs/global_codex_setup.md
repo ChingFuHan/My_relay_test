@@ -20,7 +20,7 @@ bash scripts/install-global-codex-relay.sh \
 
 1. 寫入權限為 600 的 `~/.config/gpt-relay/env.sh`。
 2. 讓 `~/.bashrc` 或 `~/.zshrc` 自動載入 bridge 環境變數。
-3. 從 `ChingFuHan/My_relay_test` 安裝 `gpt-relay@gpt-relay-host-bridge` plugin。
+3. 從 `ChingFuHan/My_relay_test` 安裝 `gpt-relay@gpt-relay-host-bridge` plugin，包含它的 MCP relay 工具。
 
 如果 bridge 設定已在環境變數中，也可直接執行安裝器。測試自己的 fork 或本地版本時，從 repo 根目錄加上 `--marketplace-source .`。
 
@@ -79,4 +79,5 @@ codex plugin marketplace upgrade gpt-relay-host-bridge
 codex plugin add gpt-relay@gpt-relay-host-bridge
 ```
 
-更新後重新啟動 Codex。若從桌面 GUI / IDE 開啟 Codex，請確認其 process environment 也有三個 `GPT_RELAY_*` 變數；本流程已驗證的是從 terminal 啟動的 Codex CLI。
+更新後重新啟動 Codex 並開新 thread。MCP relay 會安全讀取
+`~/.config/gpt-relay/env.sh`，因此從桌面 GUI / IDE 啟動時，不必依賴它繼承 shell 環境變數。

@@ -84,7 +84,23 @@ When the user asks to continue, reopen, list, search, resume, poll, or check an 
 - Pro mode is the paid ChatGPT Pro Intelligence mode. It only exposes `Standard` and `Extended` effort. Do not request `Light` or `Heavy` for Pro mode.
 - If the user requests Pro but the visible ChatGPT account does not expose Pro, report that Pro is unavailable and include the available models/modes/efforts from the helper error instead of falling back to another model.
 
-## Preferred CLI Usage
+## Preferred MCP Usage
+
+Use the installed plugin MCP tools instead of shell commands whenever they are available:
+
+- mcp__gpt_relay__ask for a new task.
+- mcp__gpt_relay__continue for a stored conversation.
+- mcp__gpt_relay__poll to check an existing task.
+- mcp__gpt_relay__list_sessions to find stored tasks.
+
+The MCP server reads ~/.config/gpt-relay/env.sh when Codex did not inherit the bridge
+environment. Use the MCP tools first because they avoid the Codex shell sandbox and work from any
+repository after the plugin is installed.
+
+If a tool returns a completed finalDeliveryText, return that text exactly as the final answer.
+If it returns an error, report the relay error without substituting a Codex answer.
+
+## CLI Fallback
 
 Use the bundled CLI from the installed plugin with the normal shell tool. This works from any
 repository as long as the plugin and bridge environment are installed:

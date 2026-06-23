@@ -125,6 +125,7 @@ Global setup complete.
 
 Open a new shell (or run: . "${RC_FILE}"), then start Codex in any directory.
 In the Codex composer, type @, select GPT Relay, and enter the task for ChatGPT.
+The plugin MCP relay reads ${ENV_FILE} itself, including when Codex was not started from this shell.
 
 The bridge must still be running and ChatGPT must remain logged in on its Chrome profile.
 EOF

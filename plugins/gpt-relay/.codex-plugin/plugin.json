@@ -1,11 +1,12 @@
 {
   "name": "gpt-relay",
-  "version": "0.1.0+codex.20260623210814",
+  "version": "0.1.0+codex.20260623212436",
   "description": "Relay Codex prompts to ChatGPT Extended Pro and return the response.",
   "author": {
     "name": "Prompt Case"
   },
   "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "GPT Relay",
     "shortDescription": "Relay, resume, and poll ChatGPT Extended Pro from Codex.",

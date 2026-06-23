@@ -1,21 +1,36 @@
+import { readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
+
 const DEFAULT_HOST_BRIDGE_TIMEOUT_MS = 30_000;
+const RELAY_ENV_KEYS = new Set([
+  "GPT_RELAY_BROWSER_PROVIDER",
+  "GPT_RELAY_HOST_BRIDGE_URL",
+  "GPT_RELAY_HOST_BRIDGE_TOKEN",
+  "GPT_RELAY_HOST_BRIDGE_TIMEOUT_MS",
+]);
 
 export function normalizeHostBridgeConfig(input = {}) {
+  const relayEnvironment = loadRelayEnvironment();
   const provider =
     input.provider ??
     process.env.GPT_RELAY_BROWSER_PROVIDER ??
+    relayEnvironment.GPT_RELAY_BROWSER_PROVIDER ??
     "codex-extension";
   const url =
     input.url ??
     process.env.GPT_RELAY_HOST_BRIDGE_URL ??
+    relayEnvironment.GPT_RELAY_HOST_BRIDGE_URL ??
     "";
   const token =
     input.token ??
     process.env.GPT_RELAY_HOST_BRIDGE_TOKEN ??
+    relayEnvironment.GPT_RELAY_HOST_BRIDGE_TOKEN ??
     "";
   const timeoutMs = Number(
     input.timeoutMs ??
       process.env.GPT_RELAY_HOST_BRIDGE_TIMEOUT_MS ??
+      relayEnvironment.GPT_RELAY_HOST_BRIDGE_TIMEOUT_MS ??
       DEFAULT_HOST_BRIDGE_TIMEOUT_MS
   );
 
@@ -28,6 +43,63 @@ export function normalizeHostBridgeConfig(input = {}) {
         ? timeoutMs
         : DEFAULT_HOST_BRIDGE_TIMEOUT_MS,
   };
+}
+
+// Codex launched from a GUI or a non-login shell may not inherit ~/.bashrc.
+// Read only recognized export assignments; never evaluate the shell file.
+export function loadRelayEnvironment({
+  environment = process.env,
+  envFile = environment.GPT_RELAY_ENV_FILE ||
+    join(homedir(), ".config", "gpt-relay", "env.sh"),
+  readFile = readFileSync,
+} = {}) {
+  try {
+    return parseRelayEnvironment(readFile(envFile, "utf8"));
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return {};
+    }
+    return {};
+  }
+}
+
+export function parseRelayEnvironment(source) {
+  const values = {};
+  for (const line of String(source ?? "").split(/\r?\n/)) {
+    const match = line.match(/^\s*export\s+([A-Z0-9_]+)=(.*)\s*$/);
+    if (!match || !RELAY_ENV_KEYS.has(match[1])) {
+      continue;
+    }
+    const value = decodeShellValue(match[2]);
+    if (value !== null) {
+      values[match[1]] = value;
+    }
+  }
+  return values;
+}
+
+function decodeShellValue(raw) {
+  const value = String(raw ?? "").trim();
+  if (!value) {
+    return "";
+  }
+  if (value.startsWith("'") && value.endsWith("'")) {
+    return value.slice(1, -1);
+  }
+  if (value.startsWith('"') && value.endsWith('"')) {
+    return value.slice(1, -1).replace(/\\(.)/g, "$1");
+  }
+  // The installer writes shell-escaped values. Decode escapes without accepting
+  // command substitutions, expansions, or arbitrary shell syntax.
+  if (
+    value.includes("$") ||
+    value.includes("(") ||
+    value.includes(")") ||
+    value.includes(String.fromCharCode(96))
+  ) {
+    return null;
+  }
+  return value.replace(/\\(.)/g, "$1");
 }
 
 export function shouldUseHostBridge(config = {}) {

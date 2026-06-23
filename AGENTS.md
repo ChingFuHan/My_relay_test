@@ -22,6 +22,10 @@ Minimal relay success was verified with prompt:
 ## Codex Entry Point
 
 In Codex CLI, type `@`, select **GPT Relay**, then describe the task to send to ChatGPT.
+The selected plugin provides MCP tools named `mcp__gpt_relay__ask`,
+`mcp__gpt_relay__continue`, `mcp__gpt_relay__poll`, and
+`mcp__gpt_relay__list_sessions`. Prefer these over the shell CLI because this VM's Codex
+sandbox cannot create a loopback interface.
 
 `codex-cli 0.141.0` did not register deprecated custom prompts as slash commands in a fresh TUI,
 despite the public manual documenting that surface. Do not direct users to `/prompts:*`.
@@ -70,9 +74,11 @@ Proven:
 - ordinary Node CLI relay through host-bridge
 - isolated Codex marketplace install of `gpt-relay@gpt-relay-host-bridge`
 - `@` plugin selector shows GPT Relay in a fresh Codex TUI
+- MCP server protocol handshake and tool inventory in the plugin source
 
 Not yet fully validated after host-bridge integration:
 
+- a fresh installed Codex plugin MCP call through the TUI
 - file upload
 - image generation flow
 - Deep Research export

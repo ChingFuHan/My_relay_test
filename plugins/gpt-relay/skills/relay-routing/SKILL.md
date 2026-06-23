@@ -10,17 +10,17 @@ conversation, or poll a stored long-running session as requested.
 
 ## Start
 
-Use `runExtendedProRelay(...)` for a new task. Keep the current visible ChatGPT intelligence
-selection unless the user explicitly requests another model, mode, or effort.
+Use mcp__gpt_relay__ask for a new task. Keep the current visible ChatGPT intelligence selection
+unless the user explicitly requests another model, mode, or effort.
 
 ## Continue
 
 When the user identifies an earlier subject, title, or session id and asks to continue, use
-`continueExtendedProRelay(...)` rather than creating an unrelated conversation.
+mcp__gpt_relay__continue rather than creating an unrelated conversation.
 
 ## Poll
 
-When the user asks for progress on a previously started task, use `pollRelaySession(...)` instead
+When the user asks for progress on a previously started task, use mcp__gpt_relay__poll instead
 of resending the task.
 
 ## Safety

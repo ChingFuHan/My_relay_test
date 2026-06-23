@@ -315,7 +315,11 @@ statePath: "/tmp/gpt-relay/sessions.json"
 composer 輸入 `@`，選取 **GPT Relay** plugin，再輸入你要交給 ChatGPT 的任務。
 
 `codex-cli 0.141.0` 實測不會把 `~/.codex/prompts/` 註冊為 slash command，因此不要使用
-`/prompts:chatgpt`。`@` plugin 選取器是目前可驗證的入口。
+`/prompts:chatgpt`。`@` plugin 選取器是目前可驗證的入口；選取後，Codex 會呼叫 plugin
+內建的 MCP relay tool，不需要在 shell 裡執行 Node CLI。
+
+MCP tool 會讀取 `~/.config/gpt-relay/env.sh`。所以就算新開 Codex 的 GUI、IDE 或 shell
+沒有繼承 `GPT_RELAY_*` 環境變數，仍可使用同一套 bridge 設定。
 
 例子：
 
