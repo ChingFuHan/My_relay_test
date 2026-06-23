@@ -6,9 +6,11 @@
 
 1. [../user_quick_start.md](../user_quick_start.md)
    最短可成功流程。先照這份把 Windows host 和 Linux VM 跑通。
-2. [agent_handoff_2026-06-24.md](./agent_handoff_2026-06-24.md)
+2. [new_agent_onboarding.md](./new_agent_onboarding.md)
+   給新 agent 的超短入口，先看這份再進細節。
+3. [agent_handoff_2026-06-24.md](./agent_handoff_2026-06-24.md)
    這次實作到底改了什麼、驗證到哪裡、還有哪些限制。
-3. [../AGENTS.md](../AGENTS.md)
+4. [../AGENTS.md](../AGENTS.md)
    給下一個 agent 的專案記憶與關鍵路徑。
 
 如果你只想確認目前是否已經可用：
