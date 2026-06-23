@@ -141,7 +141,9 @@ cat <<EOF
 
 Global setup complete.
 
-Open a new shell (or run: . "${RC_FILE}"), then start a new Codex thread in any directory.
+Exit every already-running Codex CLI process first. Then open a new shell (or run: . "${RC_FILE}")
+and start a new Codex process in any directory. `/new` and switching to Plan mode do not reload
+custom prompts.
 Use these native Codex commands:
   /prompts:chatgpt <task>
   /prompts:gpt <task>

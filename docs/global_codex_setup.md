@@ -45,13 +45,16 @@ bash scripts/install-global-codex-relay.sh \
 
 ## 新 Session 怎麼用
 
-關掉並重新開啟 terminal，或先執行：
+**先完全離開已在跑的 Codex CLI**：輸入 `/exit`，回到 shell prompt。`/new`、切換 Plan mode，
+或開同一個 process 的新 thread 都不會重新掃描 custom prompts。
+
+再關掉並重新開啟 terminal，或先執行：
 
 ```bash
 . ~/.bashrc
 ```
 
-接著可在任何目錄啟動 Codex：
+接著可在任何目錄啟動一個新的 Codex process：
 
 ```bash
 cd /任何/其他/repo
@@ -120,7 +123,7 @@ bash /path/to/GPT-Relay-Codex-Plugin-/scripts/install-global-codex-relay.sh \
   --force-prompts --skip-plugin
 ```
 
-每次 plugin 或 prompts 更新後，都要開新的 Codex thread 才會載入最新 skill。
+每次 plugin 或 prompts 更新後，都要 `/exit` 後重新執行 `codex`，不能只開新的 Codex thread。
 
 若 Codex 是從桌面 GUI / IDE 啟動，不一定會讀到 `.bashrc`。本流程已驗證的是從新 terminal
 啟動的 Codex CLI；GUI 使用前先確認它的 process environment 也有三個 `GPT_RELAY_*` 變數。

@@ -43,6 +43,7 @@ They expand into the following plugin skill routing prefixes:
 
 `/chatgpt` and related prefixes are skill routing conventions. They become real slash-menu entries
 only after `scripts/install-global-codex-relay.sh` copies the templates into `~/.codex/prompts/`.
+Codex must then be fully restarted; `/new` or a new Plan-mode thread does not reload them.
 
 ## Important Files
 

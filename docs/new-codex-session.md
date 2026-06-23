@@ -8,6 +8,9 @@
 2. 已完成一次 [global_codex_setup.md](./global_codex_setup.md) 的安裝。
 3. 用新的 terminal 開啟 Codex CLI，讓 shell 載入 `~/.config/gpt-relay/env.sh`。
 
+如果剛安裝或更新過 plugin / prompts，先在舊 session 執行 `/exit`。`/new`、切到 Plan mode
+或開新 thread 不會重新載入 `~/.codex/prompts/`。
+
 使用：
 
 ```bash
