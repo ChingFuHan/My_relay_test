@@ -4,13 +4,17 @@
 
 建議閱讀順序：
 
-1. [../user_quick_start.md](../user_quick_start.md)
-   最短可成功流程。先照這份把 Windows host 和 Linux VM 跑通。
+1. [deployment-modes.md](./deployment-modes.md)
+   先判斷你是本機、Host/Guest，還是遠端模式。
 2. [new_agent_onboarding.md](./new_agent_onboarding.md)
    給新 agent 的超短入口，先看這份再進細節。
-3. [agent_handoff_2026-06-24.md](./agent_handoff_2026-06-24.md)
+3. [global_codex_setup.md](./global_codex_setup.md)
+   如果你要的是「直接套在 Codex 上」，先看這份。
+4. [../user_quick_start.md](../user_quick_start.md)
+   目前已驗證的最短流程，對應 Windows host + Linux VM 範例。
+5. [agent_handoff_2026-06-24.md](./agent_handoff_2026-06-24.md)
    這次實作到底改了什麼、驗證到哪裡、還有哪些限制。
-4. [../AGENTS.md](../AGENTS.md)
+6. [../AGENTS.md](../AGENTS.md)
    給下一個 agent 的專案記憶與關鍵路徑。
 
 如果你只想確認目前是否已經可用：

@@ -85,6 +85,22 @@ media/
 - The plugin operates the visible ChatGPT web UI, so ChatGPT UI changes may require plugin updates.
 - Long-running tasks may need polling from Codex.
 
+## Host-Bridge Deployment Modes
+
+If Codex cannot directly use the Chrome session that already has ChatGPT logged in, use the host-bridge path.
+
+Common cases:
+
+- Codex and Chrome are on the same machine
+- Codex runs in a VM, Docker container, WSL instance, or dev container
+- Codex and Chrome are on different machines
+
+Start here:
+
+- [docs/deployment-modes.md](./docs/deployment-modes.md)
+- [docs/global_codex_setup.md](./docs/global_codex_setup.md)
+- [user_quick_start.md](./user_quick_start.md)
+
 ## Developer
 
 Created by Prompt Case.

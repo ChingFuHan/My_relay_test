@@ -30,7 +30,7 @@ By default this keeps the user's current visible ChatGPT Intelligence selection.
 ## Limits
 
 - Requires the Chrome plugin and a logged-in ChatGPT session.
-- Experimental alternative: use a host-side bridge service that talks to host Chrome over CDP when Codex runs inside a VM. See `../../host-bridge/README.md`.
+- Experimental alternative: use a host-side bridge service that talks to Chrome over CDP when Codex cannot directly drive the desired Chrome session. This covers local single-machine use, host/guest setups such as VM or Docker, and remote-machine use. See `../../host-bridge/README.md` and `../../docs/deployment-modes.md`.
 - Stops on login, CAPTCHA, permission, or account prompts.
 - Reports the visible ChatGPT Intelligence selection requested or observed; it does not claim hidden backend state.
 - Pro mode is the paid ChatGPT Pro Intelligence mode and only supports Standard or Extended effort.

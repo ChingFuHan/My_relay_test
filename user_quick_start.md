@@ -2,7 +2,13 @@
 
 這份文件只寫「目前這次成功跑通」所需的最短流程。
 
-目標：
+注意：
+
+- 這不是唯一部署方式
+- 這份文件記錄的是「Windows host + Linux VM」這條已驗證案例
+- 如果你的場景不是 VM，先看 [docs/deployment-modes.md](./docs/deployment-modes.md)
+
+這份文件的目標：
 
 - Linux VM 裡跑 Codex / GPT Relay
 - Windows host 跑 Chrome
@@ -14,7 +20,7 @@
 
 - `plugin`: `plugins/gpt-relay`
 - `skill`: `plugins/gpt-relay/skills/gpt-relay/SKILL.md`
-- `host-bridge`: Windows host 端小服務，讓 VM 可透過 HTTP 控制 host Chrome
+- `host-bridge`: bridge 機器上的小服務，這次範例是 Windows host，讓 VM 可透過 HTTP 控制 host Chrome
 
 不是只裝 skill 就會通。
 真正做事的是 plugin + host-bridge。
@@ -144,6 +150,8 @@ Invoke-WebRequest 'http://127.0.0.1:8765/health' -Headers @{ Authorization = 'Be
 ---
 
 ## 5. Linux VM 要準備什麼
+
+這一節只適用於本文件的「Linux VM -> Windows host」範例。
 
 ### 5.1 確認 VM 能連到 Windows host
 

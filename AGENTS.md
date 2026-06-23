@@ -12,6 +12,9 @@ Verified working path on 2026-06-24:
 - ChatGPT logged in on that Windows Chrome
 - VM reaches host bridge over HTTP, example: `http://192.168.0.72:8765`
 
+This is the currently proven example path, not the only supported deployment shape.
+For deployment choices, read `docs/deployment-modes.md`.
+
 Minimal relay success was verified with prompt:
 
 - `請只回覆 OK。`
@@ -48,7 +51,7 @@ These are skill/routing conventions, not guaranteed UI-native slash commands.
 - Chinese ChatGPT UI fallbacks were added for composer, send button, and completion detection.
 - Direct shell tests must provide explicit `statePath`, for example:
   - `/tmp/gpt-relay/sessions.json`
-- `host-bridge` is required for Linux VM -> Windows Chrome control.
+- `host-bridge` is the current bridge path when Codex cannot directly drive the target Chrome session.
 
 ## Known Good Environment Variables
 

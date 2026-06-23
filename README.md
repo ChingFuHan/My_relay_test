@@ -76,12 +76,20 @@ If you want GPT Relay to upload local files or images to ChatGPT, enable file UR
 
 ## Host-Bridge Path
 
-If Codex runs inside a Linux VM but your usable Chrome session is on a Windows host, use the host-bridge path in this repo.
+If Codex cannot directly use the Chrome session that already has ChatGPT logged in, use the host-bridge path in this repo.
+
+Common cases:
+
+- Codex and Chrome are on the same machine, but you want a dedicated bridge
+- Codex runs in a VM, Docker container, WSL instance, or dev container
+- Codex runs on a different machine from the Chrome session you want to use
 
 Start here:
 
 - [user_quick_start.md](./user_quick_start.md)
 - [docs/README.md](./docs/README.md)
+- [docs/deployment-modes.md](./docs/deployment-modes.md)
+- [docs/global_codex_setup.md](./docs/global_codex_setup.md)
 - [host-bridge/README.md](./host-bridge/README.md)
 
 ## Marketplace Package

@@ -2,16 +2,18 @@
 
 如果你是第一次接手這個 repo，先看這三個檔：
 
-1. [../user_quick_start.md](../user_quick_start.md)
-   看最短成功流程。先知道 Windows host 和 Linux VM 各要做什麼。
+1. [deployment-modes.md](./deployment-modes.md)
+   先判斷使用者是哪種部署模式，不要預設是 VM。
 2. [agent_handoff_2026-06-24.md](./agent_handoff_2026-06-24.md)
    看這次到底改了哪些東西、哪些已驗證、哪些還沒完全穩。
 3. [../AGENTS.md](../AGENTS.md)
    看目前專案記憶、環境變數、路由慣例、關鍵檔案。
+4. [../user_quick_start.md](../user_quick_start.md)
+   如果使用者場景剛好是 Windows host + Linux VM，這份是目前最短已驗證流程。
 
 ## 30 秒版現況
 
-- 已驗證：Linux VM 可透過 `host-bridge` 控制 Windows Chrome 上的 ChatGPT
+- 已驗證：Host/Guest 模式可透過 `host-bridge` 控制另一側的 Chrome 上的 ChatGPT
 - 已驗證：簡單文字 relay 可成功往返
 - 已補上：ChatGPT `logged-in` / `guest-or-logged-out` / `verification-required` 狀態判斷
 - 未完全驗證：圖片流程、檔案上傳、Deep Research 匯出、部分 continuation/polling
@@ -24,7 +26,7 @@
 
 ## 最常用環境變數
 
-Linux VM:
+Codex side example:
 
 ```bash
 export GPT_RELAY_BROWSER_PROVIDER=host-bridge
@@ -32,7 +34,7 @@ export GPT_RELAY_HOST_BRIDGE_URL=http://192.168.0.72:8765
 export GPT_RELAY_HOST_BRIDGE_TOKEN=change-me
 ```
 
-Windows host:
+Bridge side example:
 
 ```powershell
 $env:HOST_BRIDGE_TOKEN='change-me'
@@ -44,7 +46,7 @@ $env:HOST_BRIDGE_HOST='0.0.0.0'
 
 先不要直接猜功能有沒有通，先做這兩步：
 
-1. 從 VM 打 health check 到 host bridge
+1. 先判斷是 Local / Host-Guest / Remote 哪種模式
 2. 用 `請只回覆 OK。` 跑最小 relay 測試
 
-這兩步都已經有成功案例，完整指令在 [../user_quick_start.md](../user_quick_start.md)。
+目前完整成功案例在 [../user_quick_start.md](../user_quick_start.md)。
