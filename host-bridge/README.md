@@ -33,19 +33,21 @@ Still incomplete:
 
 ### Windows quick path
 
-Use the batch files in [`windows/`](./windows):
+This repo contains both the Codex plugin and its Windows host companion. If
+Codex runs in a Linux VM, WSL, Docker, or another machine, use the managed
+Windows entrypoints in [`windows/`](./windows):
 
-- `start-chrome-debug.bat`
-- `start-host-bridge.bat`
-- `start-all.bat`
+1. Run `setup-host-bridge-deps.bat` once, or let the main launcher install dependencies.
+2. Run `run-gpt-relay-host.bat`. It starts debug Chrome, starts the bridge, and verifies `/health`.
+3. Log in to ChatGPT in the new debug Chrome window.
+4. Set `GPT_RELAY_BROWSER_PROVIDER=host-bridge`, the Windows host URL, and the same Token in the Codex environment.
 
-Recommended:
+Use `status-gpt-relay-host.bat` to diagnose state and `stop-gpt-relay-host.bat`
+to stop the bridge and its dedicated debug Chrome. See the Traditional Chinese
+[Windows guide](./windows/使用說明.md) for the complete VM-to-Windows workflow.
 
-1. Run `start-chrome-debug.bat`
-2. In that Chrome window, log in to ChatGPT
-3. Run `start-host-bridge.bat`
-
-Or use `start-all.bat` if you want the laziest path.
+`start-chrome-debug.bat`, `start-host-bridge.bat`, and `start-all.bat` remain
+available for manual or advanced startup.
 
 ### Manual setup
 

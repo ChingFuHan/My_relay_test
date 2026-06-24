@@ -93,6 +93,10 @@ export GPT_RELAY_HOST_BRIDGE_TOKEN=change-me
 - Windows host Chrome
 - `GPT_RELAY_HOST_BRIDGE_URL=http://192.168.0.72:8765`
 
+Windows host 使用者可在同一 repo 的
+[`host-bridge/windows/`](../host-bridge/windows/) 雙擊
+`run-gpt-relay-host.bat` 啟動 Chrome 與 bridge；Linux guest 端再依上方環境變數連線。
+
 ## Mode 3: Remote Mode
 
 適合情境：

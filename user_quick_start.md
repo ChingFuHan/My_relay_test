@@ -29,6 +29,11 @@
 
 ## 2. Windows Host 要準備什麼
 
+### 2.0 先選擇使用方式
+
+- Codex 可直接控制同一環境的 Chrome：不必啟動 `host-bridge`，直接使用 plugin 的 browser-provider 路徑。
+- Codex 在 Linux VM／WSL／Docker，Chrome 在 Windows：使用本文件的 `host-bridge` 流程。Windows 可直接雙擊 `host-bridge/windows/run-gpt-relay-host.bat`；詳細說明見 [Windows 使用說明](./host-bridge/windows/使用說明.md)。
+
 ### 2.1 必要條件
 
 - 已安裝 Google Chrome
