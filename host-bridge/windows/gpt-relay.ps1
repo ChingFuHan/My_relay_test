@@ -8,7 +8,7 @@ param(
 $ChromePath    = 'C:\Program Files\Google\Chrome\Application\chrome.exe'
 $HostBridgeDir = Split-Path -Parent $PSScriptRoot
 $Token         = 'change-me'
-$BridgeHost    = '0.0.0.0'
+$BridgeHost    = '127.0.0.1'
 $BridgePort    = 8765
 $CdpAddress    = '127.0.0.1'
 $CdpPort       = 9222

@@ -2,7 +2,9 @@
 
 Host-side companion service for `plugins/gpt-relay`.
 
-Use this when Codex cannot directly drive the Chrome session that already has ChatGPT logged in. The service connects to Chrome over CDP, then exposes a narrow HTTP bridge that the Codex-side plugin can call.
+Use this when Codex cannot directly drive the Chrome session that has ChatGPT open. The service connects to Chrome over CDP, then exposes a narrow HTTP bridge that the Codex-side plugin can call.
+
+The bridge supports either a signed-in ChatGPT session or an interactive guest page. Guest mode is limited to plain-text relay and has no resumable conversation URL; account-only features require a signed-in ChatGPT account. See the access-mode table in [the root README](../README.md#chatgpt-access-modes).
 
 This is not VM-only. It supports:
 

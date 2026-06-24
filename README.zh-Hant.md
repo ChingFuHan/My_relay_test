@@ -2,7 +2,7 @@
 
 [English README](./README.md) | [English details](./README.en.md)
 
-GPT Relay 是一個 Codex 插件，用你的 Chrome 登入狀態打開 ChatGPT，把 Codex 的問題轉交給 ChatGPT，等 ChatGPT 完成後，再把完整回覆、圖片、Deep Research 報告和對話連結帶回 Codex。
+GPT Relay 是一個 Codex 插件，用 Chrome 中已登入或可互動的訪客 ChatGPT，把 Codex 的問題轉交給 ChatGPT，等 ChatGPT 完成後，再把完整回覆，以及該模式支援的圖片、Deep Research 報告與對話連結帶回 Codex。
 
 簡單講：你在 Codex 裡叫插件使用 GPT 5.5 Pro Extended、GPT 5.4 Thinking Light、Deep Research、圖片生成或附件分析，插件會去 Chrome 裡操作 ChatGPT，然後把結果帶回來。
 
@@ -72,13 +72,22 @@ codex plugin add gpt-relay@gpt-relay-host-bridge
 
 - Codex 支援插件功能。
 - 已安裝官方 Codex Chrome 插件，或已完成本 repo 的 `host-bridge` 設定。
-- 你的 Chrome 已經登入 ChatGPT。
+- Chrome 中有可互動的 ChatGPT 訪客頁，或已登入 ChatGPT。
 - 如果要上傳本機附件，請開啟 **Allow access to file URLs**。
 - 你的 ChatGPT 帳號本身要有你要求的模型或模式。比如 Pro 模式需要 ChatGPT Pro 帳號。
 
+## ChatGPT 存取模式
+
+| 模式 | 可用 relay | 不可用功能 |
+| --- | --- | --- |
+| **訪客**（未登入） | 純文字 prompt 與回覆；若 ChatGPT 顯示「保持登出狀態」，GPT Relay 會維持訪客模式。 | 帳號限定模型、附件、圖片生成、Deep Research、穩定的對話連結、續問與 polling。 |
+| **已登入** | 該 ChatGPT 帳號畫面上可用的功能，包括可持久化的對話與帳號限定模型。 | 帳號未開通的功能，以及 host-bridge 尚未完整驗證的流程。 |
+
+訪客模式目前已驗證 Windows 本機 host-bridge 的純文字 relay。已登入模式的附件、圖片、Deep Research 與部分續問，在 host-bridge 下仍屬部分驗證。
+
 ## Host-Bridge 部署模式
 
-如果 Codex 不能直接使用你那個已登入 ChatGPT 的 Chrome session，可以改走 `host-bridge`。
+如果 Codex 不能直接使用有 ChatGPT 的 Chrome session（已登入或可互動訪客），可以改走 `host-bridge`。
 
 常見情境：
 
@@ -132,7 +141,7 @@ bash scripts/install-global-codex-relay.sh \
 - 回傳文字會盡量保留 ChatGPT 原本格式，包括標題、列表、表格、連結和程式碼。
 - 圖片生成任務會回傳圖片 artifact。
 - Deep Research 任務會匯出 Markdown 報告 artifact。
-- 會保存 session 資料，方便繼續對話或輪詢長時間任務。
+- 已登入對話會保存 session 資料，方便繼續對話或輪詢長時間任務。
 
 ## 常用例子
 
@@ -162,4 +171,4 @@ codex plugin marketplace upgrade gpt-relay-host-bridge
 
 - GPT Relay 是透過 ChatGPT 網頁 UI 操作。如果 ChatGPT 改版，插件可能需要更新 selector。
 - 插件只會報告 ChatGPT 畫面上可見和已選中的模型 / 模式 / 強度，不會聲稱知道背後隱藏狀態。
-- 如果遇到登入、CAPTCHA、權限彈窗，或者帳號沒有相關模型，插件會停止並回報原因。
+- 訪客純文字 relay 遇到「保持登出狀態」會維持訪客模式；其他登入、CAPTCHA、權限彈窗，或者帳號沒有相關模型時，插件會停止並回報原因。

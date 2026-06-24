@@ -10,13 +10,13 @@ By default this keeps the user's current visible ChatGPT Intelligence selection.
 - Selects the requested visible ChatGPT Intelligence model/mode/effort only when explicitly requested; otherwise keeps the current ChatGPT selection.
 - Sends a prompt.
 - Keeps the ChatGPT tab open by default.
-- Stores session URLs, summaries, keywords, and status for later search/continuation.
-- Saves the conversation as `pending` immediately after ChatGPT creates a `/c/...` URL, before waiting for the final answer.
+- Stores signed-in session URLs, summaries, keywords, and status for later search/continuation.
+- Saves a signed-in conversation as `pending` immediately after ChatGPT creates a `/c/...` URL, before waiting for the final answer.
 - Attaches local files through ChatGPT's visible upload controls first.
 - Waits for image attachments to remain stable for 5 seconds before sending, reducing premature sends while images are still uploading.
 - Uses clipboard image paste only as a last fallback after upload paths fail.
 - Can embed text-like files into the prompt when an attachment is passed with `inline: true`.
-- Can continue or poll stored sessions.
+- Can continue or poll stored signed-in sessions.
 - Can request ChatGPT tools: Deep research, Create image, Web search, and Projects.
 - Can prefix a prompt with a GPT App mention such as Canva.
 - Waits for the assistant response to finish by default.
@@ -25,21 +25,28 @@ By default this keeps the user's current visible ChatGPT Intelligence selection.
 - Detects completed Deep Research report cards even when there is no standard assistant text.
 - Opens the Deep Research report viewer, exports Markdown, validates it, and saves it as an artifact.
 - Returns the complete delivery to Codex.
-- Provides `finalDeliveryText`, which preserves the full ChatGPT assistant response as display-ready Markdown when possible, including headings, lists, tables, links, inline formatting, generated image Markdown, artifact paths, and the ChatGPT conversation URL on the final line. `finalResponseText` remains available as a compatibility field.
+- Provides `finalDeliveryText`, which preserves the full ChatGPT assistant response as display-ready Markdown when possible, including headings, lists, tables, links, inline formatting, generated image Markdown, artifact paths, and a conversation URL when ChatGPT exposes one. `finalResponseText` remains available as a compatibility field.
+
+## ChatGPT Access Modes
+
+| Mode | Supported | Do not use |
+| --- | --- | --- |
+| **Guest** | Plain-text prompt/response. Dismiss the explicit **Keep logged out** / `保持登出狀態` welcome control when it appears. | Explicit account model selection, attachments, image generation, Deep Research, `continue`, `poll`, or a conversation URL. |
+| **Signed in** | Account-visible models, persistent sessions, and supported ChatGPT features. | Features not exposed by the account or not yet fully validated through host-bridge. |
 
 ## Limits
 
-- Requires the Chrome plugin and a logged-in ChatGPT session.
+- Requires the Chrome plugin and a ChatGPT session. Text-only guest relays are supported when ChatGPT offers its visible **Keep logged out** path; account-only models, uploads, and tools are unavailable in guest mode. Guest chats cannot be resumed or polled because ChatGPT does not expose a stable conversation URL.
 - Experimental alternative: use a host-side bridge service that talks to Chrome over CDP when Codex cannot directly drive the desired Chrome session. This covers local single-machine use, host/guest setups such as VM or Docker, and remote-machine use. See `../../host-bridge/README.md` and `../../docs/deployment-modes.md`.
-- Stops on login, CAPTCHA, permission, or account prompts.
+- Dismisses ChatGPT's explicit **Keep logged out** guest welcome prompt, but stops on other login, CAPTCHA, permission, or account prompts.
 - Reports the visible ChatGPT Intelligence selection requested or observed; it does not claim hidden backend state.
 - Pro mode is the paid ChatGPT Pro Intelligence mode and only supports Standard or Extended effort.
 - If Pro is requested but unavailable in the visible account, reports the available models/modes/efforts instead of falling back to another model.
 - Default relay calls wait up to six hours for ChatGPT to finish, in short persisted chunks, and should not be replaced by a Codex fallback answer.
 - Polling a stored session defaults to 30 minutes for long Pro replies.
-- If the outer Codex tool call times out first, search or poll the stored session instead of resending the prompt.
+- If a signed-in outer Codex tool call times out first, search or poll the stored session instead of resending the prompt.
 - Not every model exposes every mode or effort; if ChatGPT hides a requested combination, the helper reports `INTELLIGENCE_COMBINATION_UNAVAILABLE` rather than silently changing the request.
-- `status: "pending"` is opt-in only with `returnPending: true`; use it only when the user explicitly wants background polling.
+- `status: "pending"` is opt-in only with `returnPending: true`; use it only for signed-in work when the user explicitly wants background polling.
 - File upload requires Codex Chrome upload permission and Chrome extension file URL access.
 - Image uploads send the original file; the helper does not compress images.
 - Clipboard paste remains only as a fallback for small images when upload is unavailable.

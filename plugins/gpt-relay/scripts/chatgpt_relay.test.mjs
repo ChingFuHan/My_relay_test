@@ -321,6 +321,17 @@ test("final response text preserves assistant text and appends conversation URL"
   );
 });
 
+test("guest delivery omits an unavailable conversation URL", () => {
+  assert.equal(
+    __testing.formatFinalResponseText({ assistantText: "OK。" }),
+    "OK。"
+  );
+  assert.equal(
+    __testing.formatFinalDeliveryText({ assistantText: "OK。" }),
+    "OK。"
+  );
+});
+
 test("complete relay results require verbatim finalDeliveryText delivery", () => {
   const response = __testing.verbatimFinalResponse({
     status: "complete",
@@ -630,10 +641,23 @@ test("ChatGPT access state detects logged-in workspace", () => {
   assert.equal(state.state, "logged-in");
 });
 
-test("ChatGPT access state detects guest or logged-out mode", () => {
+test("ChatGPT access state detects an interactive guest workspace", () => {
   const state = __testing.classifyChatGPTAccessStateSnapshot({
-    combined: "ChatGPT 開啟暫存對話 訪客 登入 註冊",
+    combined: "ChatGPT 登入 免費註冊 保持登出狀態",
     hasComposer: true,
+    hasProfileButton: true,
+    hasSidebarProfileLikeButton: true,
+    hasGuestLoginControls: true,
+  });
+
+  assert.equal(state.state, "guest");
+  assert.match(state.message, /guest/i);
+});
+
+test("ChatGPT access state detects a blocked logged-out page", () => {
+  const state = __testing.classifyChatGPTAccessStateSnapshot({
+    combined: "ChatGPT 登入 註冊",
+    hasComposer: false,
     hasProfileButton: false,
     hasSidebarProfileLikeButton: false,
   });

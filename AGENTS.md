@@ -15,6 +15,11 @@ Verified working path on 2026-06-24:
 This is the currently proven example path, not the only supported deployment shape.
 For deployment choices, read `docs/deployment-modes.md`.
 
+Also verified on 2026-06-25:
+
+- Windows local Codex -> local `host-bridge` -> Windows Chrome in ChatGPT guest mode
+- plain-text relay succeeds after choosing the visible `保持登出狀態` control
+
 Minimal relay success was verified with prompt:
 
 - `請只回覆 OK。`
@@ -47,6 +52,8 @@ despite the public manual documenting that surface. Do not direct users to `/pro
 ## Important Runtime Notes
 
 - Chinese ChatGPT UI fallbacks were added for composer, send button, and completion detection.
+- Access modes are distinct: `guest` supports plain text only; `logged-in` supports account-visible capabilities. Do not force a guest user to log in.
+- Guest sessions have no stable conversation URL. Never call `continue` or `poll` for them, and do not claim a conversation link was returned.
 - Direct shell tests must provide explicit `statePath`, for example:
   - `/tmp/gpt-relay/sessions.json`
 - `host-bridge` is the current bridge path when Codex cannot directly drive the target Chrome session.
@@ -75,6 +82,7 @@ Proven:
 - isolated Codex marketplace install of `gpt-relay@gpt-relay-host-bridge`
 - `@` plugin selector shows GPT Relay in a fresh Codex TUI
 - MCP server protocol handshake and tool inventory in the plugin source
+- Windows local guest-mode plain-text relay, returning `OK` without a ChatGPT login
 
 Not yet fully validated after host-bridge integration:
 

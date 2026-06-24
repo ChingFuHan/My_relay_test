@@ -14,6 +14,8 @@
 - Windows host 跑 Chrome
 - Linux VM 經由 `host-bridge` 控制 Windows Chrome 上的 ChatGPT
 
+本文件記錄的是**已登入模式**的 VM 範例，因為它會驗證 `/c/...` conversation URL 與 session metadata。訪客模式目前只驗證 Windows 本機 host-bridge 的純文字 relay；其限制請看根目錄 README 的 ChatGPT Access Modes。
+
 ---
 
 ## 1. 架構
@@ -39,7 +41,7 @@
 - 已安裝 Google Chrome
 - 已安裝 Node.js
 - Windows 上有 repo，至少有 `host-bridge/`
-- ChatGPT 可正常登入
+- 已登入模式：ChatGPT 可正常登入。訪客模式：可停留在可互動的訪客頁，但僅限純文字且不可續問。
 
 確認 Node.js：
 
@@ -97,7 +99,7 @@ Invoke-WebRequest 'http://127.0.0.1:9222/json/version' | Select-Object -ExpandPr
 - `netstat` 有 `127.0.0.1:9222 ... LISTENING`
 - `json/version` 有回 JSON
 
-### 3.4 在這個 Chrome 裡登入 ChatGPT
+### 3.4 在這個 Chrome 裡登入 ChatGPT（本文件的已登入範例）
 
 用剛開的這個 Chrome：
 
@@ -306,7 +308,7 @@ statePath: "/tmp/gpt-relay/sessions.json"
 每次要用時，照這個順序最穩：
 
 1. Windows 開 Chrome debug 版
-2. Windows 用這個 Chrome 登入 ChatGPT
+2. Windows 用這個 Chrome 登入 ChatGPT（若要依本文件驗證持久 session）
 3. Windows 啟動 `host-bridge`
 4. Linux VM 驗證 `/health`
 5. Linux VM 設環境變數
@@ -352,7 +354,7 @@ Windows host：
 
 - Chrome 用 `--remote-debugging-port=9222` 啟動
 - `http://127.0.0.1:9222/json/version` 有回 JSON
-- ChatGPT 已登入
+- 已登入模式：ChatGPT 已登入；訪客模式：可互動且知道它只有純文字、不可續問
 - `host-bridge` 正在跑
 - `http://127.0.0.1:8765/health` 有回應
 

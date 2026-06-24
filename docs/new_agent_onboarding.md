@@ -18,8 +18,9 @@
 ## 30 秒版現況
 
 - 已驗證：Host/Guest 模式可透過 `host-bridge` 控制另一側的 Chrome 上的 ChatGPT
-- 已驗證：簡單文字 relay 可成功往返
-- 已補上：ChatGPT `logged-in` / `guest-or-logged-out` / `verification-required` 狀態判斷
+- 已驗證：簡單文字 relay 可成功往返，包含 Windows 本機 host-bridge 的訪客模式
+- 已補上：ChatGPT `guest` / `logged-in` / `guest-or-logged-out` / `verification-required` 狀態判斷
+- 訪客只可做純文字 relay；不可要求登入、附件、圖片、Deep Research、續問或 polling
 - 已補上：可由 `@` 選取的 GPT Relay plugin，以及一般 Node CLI 入口
 - 已完成：**Claude Code 整合**。同一支 `mcp_server.mjs` 以 user scope 掛進 Claude Code（全域），實測 `ask` 經 :8765 → ChatGPT 回 OK。詳見 [usage-codex-and-claude-code.md](./usage-codex-and-claude-code.md)。
 - 未完全驗證：圖片流程、檔案上傳、Deep Research 匯出、部分 continuation/polling
@@ -53,7 +54,8 @@ $env:HOST_BRIDGE_HOST='0.0.0.0'
 
 先不要直接猜功能有沒有通，先做這兩步：
 
-1. 先判斷是 Local / Host-Guest / Remote 哪種模式
-2. 用 `請只回覆 OK。` 跑最小 relay 測試
+1. 先判斷是 Local / Host-Guest / Remote 哪種部署模式
+2. 再判斷 ChatGPT 是訪客或已登入；訪客只能送純文字新任務，不能續問或 polling
+3. 用 `請只回覆 OK。` 跑最小 relay 測試
 
 目前完整成功案例在 [../user_quick_start.md](../user_quick_start.md)。

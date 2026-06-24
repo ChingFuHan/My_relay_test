@@ -117,7 +117,7 @@ claude mcp get gpt-relay        # Scope: User、Status: ✔ Connected
 
 - 有 Chrome 那台機器:Chrome 以 debug 模式開(`--remote-debugging-port=9222`),
   且 `host-bridge` server 在 :8765 跑著。
-- 該 Chrome 的 ChatGPT **已登入**(relay 會分類 logged-in / guest / verification 狀態)。
+- 該 Chrome 的 ChatGPT 是**已登入**或可互動的**訪客模式**。訪客只可做純文字 relay，不能續問或 polling；已登入對話才可使用持久 session。
 - 健康檢查:
   ```bash
   curl -H 'Authorization: Bearer change-me' http://192.168.0.72:8765/health
@@ -126,5 +126,5 @@ claude mcp get gpt-relay        # Scope: User、Status: ✔ Connected
 
 ## 5. 最小驗證
 
-送 `請只回覆 OK。`,預期 `status: complete` + `conversationUrl`。
+送 `請只回覆 OK。`。已登入模式預期 `status: complete` + `conversationUrl`；訪客模式預期 `status: complete`，但不會有可續問的 conversation URL。
 Windows host + Linux VM 的完整已驗證流程見 [../user_quick_start.md](../user_quick_start.md)。

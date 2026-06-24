@@ -52,6 +52,15 @@ If you want GPT Relay to upload local files or images to ChatGPT, enable file UR
 
 ![Allow access to file URLs for Codex Chrome extension](./media/chrome-extension-file-urls.png)
 
+## ChatGPT Access Modes
+
+| Mode | Supported relay | Not available |
+| --- | --- | --- |
+| **Guest** (not signed in) | Plain-text prompts and responses; GPT Relay may choose ChatGPT's visible **Keep logged out** path. | Account-only models, uploads, image generation, Deep Research, a stable conversation URL, continuation, and polling. |
+| **Signed in** | Features visible to the ChatGPT account, including persistent conversations and account-gated model choices. | Features unavailable to the account, plus host-bridge flows not yet fully validated. |
+
+Guest mode is verified for Windows local host-bridge text relay. Signed-in attachments, image generation, Deep Research, and some continuation paths remain partially validated through host-bridge.
+
 ## Repository Layout
 
 ```text
@@ -76,20 +85,20 @@ media/
 - Thinking effort handling: Light, Standard, Extended, and Heavy when visible.
 - Clear unavailable-option errors instead of silent fallback.
 - Prompt relay, file upload, image generation, web search, and Deep Research requests.
-- Full delivery back to Codex with Markdown formatting, images, artifacts, and conversation URLs.
-- Stored session metadata for continuation and polling.
+- Full delivery back to Codex with Markdown formatting; images, artifacts, and conversation URLs are available only when the selected ChatGPT mode supports them.
+- Stored signed-in session metadata for continuation and polling.
 
 ## Limitations
 
-- Requires either the official Codex Chrome extension or this repository's host-bridge path, plus an active ChatGPT login.
+- Requires either the official Codex Chrome extension or this repository's host-bridge path, plus either an interactive ChatGPT guest page or an active ChatGPT login.
 - Local file uploads require **Allow access to file URLs** to be enabled for the Codex Chrome extension.
 - Availability depends on your ChatGPT account.
 - The plugin operates the visible ChatGPT web UI, so ChatGPT UI changes may require plugin updates.
-- Long-running tasks may need polling from Codex.
+- Long-running signed-in tasks may need polling from Codex; guest chats cannot be resumed or polled because they have no stable conversation URL.
 
 ## Host-Bridge Deployment Modes
 
-If Codex cannot directly use the Chrome session that already has ChatGPT logged in, use the host-bridge path.
+If Codex cannot directly use the Chrome session that has ChatGPT open—signed in or interactive guest mode—use the host-bridge path.
 
 Common cases:
 

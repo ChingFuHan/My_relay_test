@@ -23,8 +23,8 @@ Use the helper script at `../../scripts/chatgpt_relay.mjs` to:
 7. Wait until ChatGPT finishes answering; do not answer the user's task from Codex while ChatGPT is still running.
 8. Return the complete assistant delivery to Codex: full text with Markdown formatting preserved when possible, generated images, Deep Research reports, and any saved artifact paths.
 9. Keep the ChatGPT tab open by default for follow-up use.
-10. Store session metadata, URL, summary, keywords, status, and artifacts.
-11. Save a `pending` session immediately after ChatGPT creates the `/c/...` conversation URL, before waiting for the final answer.
+10. Store session metadata, URL, summary, keywords, status, and artifacts for signed-in conversations. Guest chats have no stable conversation URL.
+11. Save a signed-in `pending` session immediately after ChatGPT creates the `/c/...` conversation URL, before waiting for the final answer.
 12. For Create image tasks, treat generated image artifacts as a valid completion signal even when the assistant text is empty.
 13. Save generated images locally and return `imageMarkdown` lines that can be rendered in the Codex conversation.
 14. For Deep Research tasks, treat `Research completed in ... · ... citations · ... searches` as the completion signal, then open the report viewer, export Markdown, validate it, and return the Markdown artifact.
@@ -44,6 +44,18 @@ Do not inspect cookies, local storage, passwords, or browser session stores.
 The preferred session store is `~/.codex/gpt-relay/sessions.json`.
 If the runtime cannot write there, the helper falls back to `nodeRepl.tmpDir` and returns `session.stateWarning`; this is degraded persistence, not a relay failure. Later session lookup also checks that fallback store when no explicit `statePath` is supplied.
 
+## ChatGPT Access Modes
+
+Inspect the visible ChatGPT state before selecting a workflow:
+
+| State | Allowed workflow | Required handling |
+| --- | --- | --- |
+| `guest` | Plain-text new task only. | Use the visible `Keep logged out` / `保持登出狀態` control when it appears. Do not request a model switch, attachment, ChatGPT tool, continuation, polling, or conversation URL. |
+| `logged-in` | Account-visible models and supported features. | Use persistent session, continuation, and polling only when ChatGPT exposes them. |
+| `guest-or-logged-out` | No relay. | Report `CHATGPT_LOGIN_REQUIRED`; do not click sign-in controls. |
+| `verification-required` | No relay. | Report the visible verification/CAPTCHA state. |
+| `unknown` | A new plain-text task only if the composer is visibly usable. | Do not infer account capabilities. |
+
 ## Trigger Handling
 
 When the user mentions phrases such as:
@@ -60,7 +72,7 @@ When the user mentions phrases such as:
 - `5.5 pro extended`
 interpret that as a request to use this relay, unless the user is only asking a conceptual question.
 
-When the user asks to continue, reopen, list, search, resume, poll, or check an earlier GPT 5.5 Pro conversation, use the exported session helpers instead of starting a new unrelated chat.
+When the user asks to continue, reopen, list, search, resume, poll, or check an earlier signed-in GPT 5.5 Pro conversation, use the exported session helpers instead of starting a new unrelated chat. Guest chats are not continuable.
 
 ## Safety Boundaries
 
@@ -74,7 +86,8 @@ When the user asks to continue, reopen, list, search, resume, poll, or check an 
 - If the relay returns `ATTACHMENT_UPLOAD_NOT_CONFIRMED` or `IMAGE_ATTACHMENT_NOT_CONFIRMED`, report that ChatGPT did not visibly accept the attachment and do not answer the attachment task from Codex.
 - Text-like files are uploaded by default. To embed a text file into the prompt instead, pass `attachments: [{ path: "...", inline: true }]`.
 - If a file path is ambiguous, ask for the path.
-- If ChatGPT shows login, CAPTCHA, payment, permission, or account prompts, stop and report the visible state.
+- For text-only guest relays, an explicit ChatGPT `Keep logged out` / `保持登出狀態` welcome control may be used to remain in guest mode. Stop and report any other login, CAPTCHA, payment, permission, or account prompt.
+- Guest chats do not expose a stable conversation URL; do not attempt continuation or polling for them.
 - If the relay fails, do not answer with another model, web search, or local reasoning unless the user explicitly asks for a fallback.
 - If ChatGPT is still answering, keep waiting or poll the same session; never substitute a local Codex answer for the requested GPT 5.5 Pro answer.
 - Do not solve CAPTCHA or accept browser permission prompts automatically.
@@ -109,7 +122,7 @@ repository as long as the plugin and bridge environment are installed:
 node "<plugin-root>/scripts/chatgpt_cli.mjs" ask --prompt "User prompt here"
 ```
 
-For a continuation or a pending task:
+For a signed-in continuation or pending task:
 
 ```bash
 node "<plugin-root>/scripts/chatgpt_cli.mjs" continue \
@@ -145,7 +158,7 @@ exactly `result.finalDeliveryText`.
 Do not add a summary before it. Do not shorten it. Do not rewrite it. Do not omit lines.
 Do not wrap it in JSON or Markdown commentary. Do not replace it with key points.
 The `finalDeliveryText` field already contains the complete ChatGPT assistant text, generated
-image Markdown, saved non-image artifact paths, and the conversation link on the final line.
+image Markdown, saved non-image artifact paths, and a conversation link when ChatGPT exposes one.
 For ordinary assistant answers, it should preserve ChatGPT-rendered Markdown structure such as
 headings, lists, tables, links, inline formatting, and original code blocks. Do not wrap the whole
 answer in a code block.
@@ -157,7 +170,7 @@ Before sending the final response, perform this check:
 - Did this turn use `runExtendedProRelay`, `pollRelaySession`, or `continueExtendedProRelay`?
 - Is `(result.mustReturnFinalDelivery === true || result.mustReturnVerbatim === true)` and `result.finalDeliveryText` available?
 - If yes, final answer = `result.finalDeliveryText` verbatim.
-- If `result.imageMarkdown`, `result.reportMarkdown`, or `result.artifacts` exist, confirm they are represented in `result.finalDeliveryText`.
+- If `result.imageMarkdown`, `result.reportMarkdown`, or `result.artifacts` exist, confirm they are represented in `result.finalDeliveryText`; only expect a conversation link for a persistent signed-in chat.
 - If you are about to summarize, stop and paste `result.finalDeliveryText` instead.
 
 When calling this helper through `node_repl`, set the tool call timeout high enough for the expected ChatGPT runtime. Do not omit the tool timeout for long Pro jobs. Use at least 30 minutes when the user asks for patient waiting.
@@ -176,9 +189,9 @@ const result = await runExtendedProRelay({
 nodeRepl.write(result.finalDeliveryText ?? result.finalResponseText);
 ```
 
-The helper can also infer common phrases from the prompt, such as `GPT 5.5 Thinking light`, `5.4 Instant`, or `Pro extended`. The plugin name `GPT Relay` alone does not count as a request to change models. If a requested combination is not visible in ChatGPT, poll or report the error with the available options; do not resubmit the task with a different model.
+The helper can also infer common phrases from the prompt, such as `GPT 5.5 Thinking light`, `5.4 Instant`, or `Pro extended`. The plugin name `GPT Relay` alone does not count as a request to change models. If a requested combination is not visible in a signed-in ChatGPT account, poll or report the error with the available options; do not resubmit the task with a different model. In guest mode, do not request account-only combinations.
 
-If the outer tool call still times out, do not answer the user's task from Codex. Use `listRelaySessions` or `pollRelaySession` to recover the stored pending conversation and continue waiting.
+If a signed-in outer tool call still times out, do not answer the user's task from Codex. Use `listRelaySessions` or `pollRelaySession` to recover the stored pending conversation and continue waiting. Guest sessions cannot be recovered this way.
 
 Use an absolute import path resolved from this skill file:
 
@@ -186,7 +199,7 @@ Use an absolute import path resolved from this skill file:
 <plugin-root>/scripts/chatgpt_relay.mjs
 ```
 
-Continue a previous conversation:
+Continue a previous signed-in conversation:
 
 ```js
 const { continueExtendedProRelay } = await import("/absolute/path/to/plugin/scripts/chatgpt_relay.mjs");

@@ -2,7 +2,7 @@
 
 [中文说明](./README.zh-Hant.md) | [English details](./README.en.md)
 
-GPT Relay is a Codex plugin that relays prompts from Codex to ChatGPT through your existing Chrome session, then returns the completed ChatGPT response, generated images, Deep Research reports, and conversation links back to Codex.
+GPT Relay is a Codex plugin that relays prompts from Codex to ChatGPT through your existing Chrome session, then returns the completed ChatGPT response and, when the selected ChatGPT mode supports them, generated images, Deep Research reports, and conversation links.
 
 It is designed for users who want Codex to ask ChatGPT with visible ChatGPT Intelligence options such as GPT 5.5 Pro Extended, GPT 5.4 Thinking Light, Deep Research, web search, image generation, and file uploads.
 
@@ -74,13 +74,22 @@ If you want GPT Relay to upload local files or images to ChatGPT, enable file UR
 
 - Codex with plugin support.
 - Either the official Codex Chrome extension, or the `host-bridge` setup in this repo.
-- A logged-in ChatGPT session in Chrome.
+- A ChatGPT session in Chrome. Text-only guest relays are supported; account-only models, uploads, and tools still require the capabilities visible in ChatGPT. Guest chats do not expose a stable URL, so they cannot be resumed or polled.
 - **Allow access to file URLs** enabled if you want GPT Relay to upload local attachments.
 - Your ChatGPT account must have access to the model or mode you request. For example, Pro mode requires a ChatGPT Pro account.
 
+## ChatGPT Access Modes
+
+| Mode | Supported relay | Not available |
+| --- | --- | --- |
+| **Guest** (not signed in) | Plain-text prompts and responses. If ChatGPT shows **Keep logged out**, GPT Relay stays in guest mode. | Account-only models, uploads, image generation, Deep Research, a stable conversation URL, continuation, and polling. |
+| **Signed in** | Features visible to that ChatGPT account, including persistent conversations and account-gated model choices. | Any feature not available to the account or not yet fully validated through host-bridge. |
+
+Guest mode is currently verified for Windows local host-bridge text relay. Signed-in host-bridge attachments, image generation, Deep Research, and some continuation paths remain partially validated.
+
 ## Host-Bridge Path
 
-If Codex cannot directly use the Chrome session that already has ChatGPT logged in, use the host-bridge path in this repo.
+If Codex cannot directly use the Chrome session that has ChatGPT open—signed in or interactive guest mode—use the host-bridge path in this repo.
 
 This is one repository: `plugins/gpt-relay` runs in Codex, while
 `host-bridge` runs beside the Chrome session. They can be on the same machine,
@@ -142,7 +151,7 @@ The Codex **Add marketplace** dialog adds this repository as a custom marketplac
 - Return ChatGPT replies as normal Markdown, preserving headings, lists, tables, links, and code blocks where possible.
 - Return generated images as local image artifacts.
 - Export completed Deep Research reports to Markdown artifacts.
-- Keep session metadata so you can continue or poll long-running ChatGPT tasks.
+- Keep signed-in conversation metadata so you can continue or poll long-running ChatGPT tasks.
 
 ## Example Prompts
 
@@ -172,4 +181,4 @@ Update or reinstall **GPT Relay** from the Codex Plugins UI, then start a new Co
 
 - GPT Relay operates through the visible ChatGPT web UI. If ChatGPT changes its UI, selectors may need updates.
 - The plugin reports the visible model/mode/effort selected in ChatGPT. It does not claim hidden backend state.
-- It will stop on login prompts, CAPTCHA, permission dialogs, or unavailable account features.
+- It dismisses ChatGPT's explicit **Keep logged out** guest welcome prompt for text relays, but stops on other login prompts, CAPTCHA, permission dialogs, or unavailable account features.

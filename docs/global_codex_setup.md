@@ -1,7 +1,7 @@
 # Global Codex Setup
 
-這份文件讓新的 Codex CLI session，不論從哪個 repo 啟動，都能使用已登入的 ChatGPT。
-它不會帶著前一個 Codex thread 的對話內容，但會帶著 GPT Relay 的 plugin、bridge 設定與 session metadata。
+這份文件讓新的 Codex CLI session，不論從哪個 repo 啟動，都能使用已登入或可互動訪客模式的 ChatGPT。
+它不會帶著前一個 Codex thread 的對話內容，但會帶著 GPT Relay 的 plugin、bridge 設定，以及已登入對話的 session metadata。
 
 ## 一次性安裝
 
@@ -56,7 +56,7 @@ codex plugin list | rg 'gpt-relay'
 ```
 
 然後在新的 Codex thread 中用 `@` 選取 **GPT Relay**，並要求 ChatGPT「請只回覆 OK。」。
-這會驗證 plugin、環境傳遞、bridge、Chrome CDP 與 ChatGPT 登入狀態。
+這會驗證 plugin、環境傳遞、bridge、Chrome CDP，以及 ChatGPT 的訪客或登入狀態。
 
 ## 什麼會帶著走
 
@@ -64,13 +64,13 @@ codex plugin list | rg 'gpt-relay'
 
 - 已安裝的 plugin 與 skills。
 - 新 shell 啟動 Codex 時的 bridge 環境變數。
-- `~/.codex/gpt-relay/sessions.json` 中可供續問或 polling 的 metadata。
+- 已登入對話在 `~/.codex/gpt-relay/sessions.json` 中可供續問或 polling 的 metadata。
 
 不會帶著走：
 
 - 前一個 Codex thread 的聊天內容。
 - 已結束的 `host-bridge`。
-- 已登出的 ChatGPT Chrome session。
+- 已登出的訪客對話內容與訪客對話的續問能力。
 
 ## 更新
 

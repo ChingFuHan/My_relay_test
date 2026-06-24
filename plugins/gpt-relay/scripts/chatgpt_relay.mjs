@@ -162,6 +162,13 @@ export async function continueExtendedProRelay(options = {}) {
     );
   }
 
+  if (session.guestMode) {
+    throw codedError(
+      "GUEST_SESSION_NOT_CONTINUABLE",
+      "Guest ChatGPT conversations do not expose a stable conversation URL and cannot be continued."
+    );
+  }
+
   return relayPrompt({
     ...options,
     conversationUrl: session.conversationUrl,
@@ -185,6 +192,13 @@ export async function pollRelaySession(options = {}) {
     throw codedError(
       "SESSION_NOT_FOUND",
       "No stored GPT Relay session matched the request."
+    );
+  }
+
+  if (session.guestMode) {
+    throw codedError(
+      "GUEST_SESSION_NOT_CONTINUABLE",
+      "Guest ChatGPT conversations do not expose a stable conversation URL and cannot be polled."
     );
   }
 
@@ -337,6 +351,12 @@ async function relayPrompt(options = {}) {
     await tab.goto(conversationUrl || CHATGPT_URL);
     await waitForLoad(tab);
 
+    const accessState = classifyChatGPTAccessStateSnapshot(
+      await readChatGPTAccessState(tab)
+    );
+    throwForBlockedChatGPTAccessState(accessState);
+    const guestMode = accessState.state === "guest";
+
     await ensureComposer(tab);
     const intelligenceSelection = await selectChatGPTIntelligence(tab, intelligenceRequest);
     mode = intelligenceSelection.label;
@@ -353,13 +373,20 @@ async function relayPrompt(options = {}) {
     });
     attachmentSummary = composition.attachmentSummary;
 
-    await clickSend(tab);
+    await clickSend(tab, {
+      composer: composition.composer,
+      prompt: composition.prompt,
+      allowGuestWelcomeDismissal: guestMode,
+    });
     const pendingUrl = await waitForConversationUrl(tab);
+    const sessionConversationUrl = guestMode && !getConversationId(pendingUrl)
+      ? ""
+      : pendingUrl;
     const pendingState = await readChatStateWithFallback(tab, prompt);
     const pendingRecord = await upsertSessionRecord({
       statePath,
       relaySessionId: sessionId,
-      conversationUrl: pendingUrl,
+      conversationUrl: sessionConversationUrl,
       title: await safeTabTitle(tab),
       mode,
       intelligence: effectiveIntelligence,
@@ -369,6 +396,7 @@ async function relayPrompt(options = {}) {
       appName,
       projectName,
       attachmentSummary,
+      guestMode,
       deepResearch: pendingState.deepResearch,
       tags,
     });
@@ -384,12 +412,12 @@ async function relayPrompt(options = {}) {
         const pendingArtifacts = await persistArtifacts(tab, pendingState.artifacts, {
           statePath,
           relaySessionId: pendingRecord.relaySessionId,
-          conversationUrl: await tab.url(),
+          conversationUrl: guestMode ? "" : await tab.url(),
         });
         await upsertSessionRecord({
           statePath,
           relaySessionId: pendingRecord.relaySessionId,
-          conversationUrl: await tab.url(),
+          conversationUrl: guestMode ? "" : await tab.url(),
           title: await safeTabTitle(tab),
           mode,
           intelligence: effectiveIntelligence,
@@ -399,6 +427,7 @@ async function relayPrompt(options = {}) {
           appName,
           projectName,
           attachmentSummary,
+          guestMode,
           artifacts: pendingArtifacts,
           deepResearch: pendingState.deepResearch,
           tags,
@@ -407,6 +436,9 @@ async function relayPrompt(options = {}) {
     });
     let state = result.state ?? (await readChatStateForFeature(tab, feature));
     const currentUrl = await tab.url();
+    const finalConversationUrl = guestMode && !getConversationId(currentUrl)
+      ? ""
+      : currentUrl;
     const title = await tab.title();
     let assistantText = result.assistantText;
     let reportMarkdown = "";
@@ -421,7 +453,7 @@ async function relayPrompt(options = {}) {
       const extraction = await extractDeepResearchReport(tab, state, {
         statePath,
         relaySessionId: pendingRecord.relaySessionId,
-        conversationUrl: currentUrl,
+        conversationUrl: finalConversationUrl,
       });
       state = extraction.state;
       assistantText = extraction.text;
@@ -433,14 +465,14 @@ async function relayPrompt(options = {}) {
     const artifacts = await persistArtifacts(tab, state.artifacts, {
       statePath,
       relaySessionId: pendingRecord.relaySessionId,
-      conversationUrl: currentUrl,
+      conversationUrl: finalConversationUrl,
     });
     const allArtifacts = reportArtifact ? [...artifacts, reportArtifact] : artifacts;
     const imageMarkdown = markdownForArtifacts(allArtifacts);
     const record = await upsertSessionRecord({
       statePath,
       relaySessionId: pendingRecord.relaySessionId,
-      conversationUrl: currentUrl,
+      conversationUrl: finalConversationUrl,
       title,
       mode,
       intelligence: effectiveIntelligence,
@@ -450,6 +482,7 @@ async function relayPrompt(options = {}) {
       appName,
       projectName,
       attachmentSummary,
+      guestMode,
       artifacts: allArtifacts,
       deepResearch,
       tags,
@@ -466,11 +499,11 @@ async function relayPrompt(options = {}) {
         status: result.status,
         assistantText,
         reportMarkdown,
-        conversationUrl: currentUrl,
+        conversationUrl: finalConversationUrl,
         artifacts: allArtifacts,
         imageMarkdown,
       }),
-      conversationUrl: currentUrl,
+      conversationUrl: finalConversationUrl,
       title,
       session: publicSession(record),
       deepResearch,
@@ -659,19 +692,7 @@ async function ensureComposer(tab) {
   const accessState = classifyChatGPTAccessStateSnapshot(
     await readChatGPTAccessState(tab)
   );
-  if (accessState.state === "verification-required") {
-    throw codedError(
-      "CHATGPT_VERIFICATION_REQUIRED",
-      accessState.message || "ChatGPT is showing a verification or CAPTCHA step."
-    );
-  }
-
-  if (accessState.state === "guest-or-logged-out") {
-    throw codedError(
-      "CHATGPT_LOGIN_REQUIRED",
-      accessState.message || "ChatGPT is not logged in or is running in guest mode."
-    );
-  }
+  throwForBlockedChatGPTAccessState(accessState);
 
   throw codedError(
     "CHATGPT_COMPOSER_MISSING",
@@ -1821,8 +1842,25 @@ async function composePrompt(tab, {
 
   return {
     prompt: finalPrompt,
+    composer,
     attachmentSummary,
   };
+}
+
+function throwForBlockedChatGPTAccessState(accessState) {
+  if (accessState.state === "verification-required") {
+    throw codedError(
+      "CHATGPT_VERIFICATION_REQUIRED",
+      accessState.message || "ChatGPT is showing a verification or CAPTCHA step."
+    );
+  }
+
+  if (accessState.state === "guest-or-logged-out") {
+    throw codedError(
+      "CHATGPT_LOGIN_REQUIRED",
+      accessState.message || "ChatGPT is not logged in and is not showing an interactive guest composer."
+    );
+  }
 }
 
 async function trySelectAppSuggestion(tab, appName) {
@@ -1869,7 +1907,7 @@ async function prepareAttachment(attachment, { maxImageClipboardBytes }) {
     );
   }
 
-  if (!attachment.path.startsWith("/")) {
+  if (!path.isAbsolute(attachment.path)) {
     throw codedError(
       "ATTACHMENT_PATH_INVALID",
       "Each attachment path must be absolute."
@@ -2519,7 +2557,39 @@ async function pressPaste(tab, composer) {
   }
 }
 
-async function clickSend(tab) {
+async function clickSend(tab, {
+  composer,
+  prompt,
+  allowGuestWelcomeDismissal = false,
+} = {}) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const sendButton = await findSendButton(tab);
+    if (sendButton) {
+      await sendButton.click({});
+      return;
+    }
+
+    if (
+      allowGuestWelcomeDismissal &&
+      composer &&
+      prompt &&
+      await dismissGuestWelcomePrompt(tab)
+    ) {
+      await composer.fill(prompt, {});
+      await tab.playwright.waitForTimeout(150);
+      continue;
+    }
+
+    break;
+  }
+
+  throw codedError(
+    "SEND_BUTTON_MISSING",
+    "Could not find the ChatGPT send button after filling the prompt."
+  );
+}
+
+async function findSendButton(tab) {
   const candidates = [
     tab.playwright.getByRole("button", {
       name: "Send prompt",
@@ -2539,14 +2609,24 @@ async function clickSend(tab) {
     }
   }
 
-  if (!sendButton) {
-    throw codedError(
-      "SEND_BUTTON_MISSING",
-      "Could not find the ChatGPT send button after filling the prompt."
-    );
+  return sendButton;
+}
+
+async function dismissGuestWelcomePrompt(tab) {
+  const candidates = [
+    tab.playwright.locator("[data-testid='dismiss-welcome']"),
+    tab.playwright.getByText(/keep logged out|stay logged out|保持登出狀態/i),
+  ];
+
+  for (const candidate of candidates) {
+    const visible = await firstVisibleLocator(candidate);
+    if (visible) {
+      await visible.click({});
+      return true;
+    }
   }
 
-  await sendButton.click({});
+  return false;
 }
 
 async function waitForConversationUrl(tab, timeoutMs = 15000) {
@@ -4511,12 +4591,18 @@ async function readChatGPTAccessState(tab) {
         )
       )
     );
+    const hasGuestLoginControls = Boolean(
+      document.querySelector(
+        "[data-testid='login-button'], [data-testid='signup-button'], [data-testid='dismiss-welcome']"
+      )
+    );
 
     return {
       combined,
       hasComposer,
       hasProfileButton,
       hasSidebarProfileLikeButton,
+      hasGuestLoginControls,
     };
   }, pageState, { timeoutMs: 5000 });
 }
@@ -4526,6 +4612,7 @@ function classifyChatGPTAccessStateSnapshot(snapshot = {}) {
   const hasComposer = Boolean(snapshot.hasComposer);
   const hasProfileButton = Boolean(snapshot.hasProfileButton);
   const hasSidebarProfileLikeButton = Boolean(snapshot.hasSidebarProfileLikeButton);
+  const hasGuestLoginControls = Boolean(snapshot.hasGuestLoginControls);
 
   const verificationRequired = /captcha|verify|verification|驗證|確認你是人類|human/i.test(combined);
   if (verificationRequired) {
@@ -4543,6 +4630,24 @@ function classifyChatGPTAccessStateSnapshot(snapshot = {}) {
   const loginLike = /log in|login|sign in|sign up|登入|登錄|註冊|建立帳戶|continue with google|continue with apple/i.test(combined);
   const guestLike = /guest|訪客|temporary chat|暫存對話|開啟暫存對話/i.test(combined);
 
+  if (
+    hasComposer &&
+    (hasGuestLoginControls || (!hasProfileButton && !hasSidebarProfileLikeButton && (loginLike || guestLike)))
+  ) {
+    return {
+      state: "guest",
+      message: "ChatGPT appears to be in interactive guest mode.",
+      signals: {
+        hasComposer,
+        hasProfileButton,
+        hasSidebarProfileLikeButton,
+        hasGuestLoginControls,
+        loginLike,
+        guestLike,
+      },
+    };
+  }
+
   if (!hasProfileButton && !hasSidebarProfileLikeButton && (loginLike || guestLike)) {
     return {
       state: "guest-or-logged-out",
@@ -4553,6 +4658,7 @@ function classifyChatGPTAccessStateSnapshot(snapshot = {}) {
         hasComposer,
         hasProfileButton,
         hasSidebarProfileLikeButton,
+        hasGuestLoginControls,
         loginLike,
         guestLike,
       },
@@ -4703,6 +4809,7 @@ async function upsertSessionRecordAtPath(statePath, input) {
     feature: input.feature ?? existing.feature,
     appName: input.appName ?? existing.appName,
     projectName: input.projectName ?? existing.projectName,
+    guestMode: input.guestMode ?? existing.guestMode ?? false,
     attachmentSummary:
       input.attachmentSummary ?? existing.attachmentSummary ?? [],
     artifacts: input.artifacts ?? existing.artifacts ?? [],
@@ -4873,6 +4980,7 @@ function publicSession(session) {
     feature: session.feature,
     appName: session.appName,
     projectName: session.projectName,
+    guestMode: Boolean(session.guestMode),
     attachmentSummary: session.attachmentSummary,
     artifacts: session.artifacts,
     deepResearch: session.deepResearch,
@@ -4886,8 +4994,11 @@ function publicSession(session) {
 function formatFinalResponseText({ assistantText = "", conversationUrl = "" } = {}) {
   const text = String(assistantText ?? "").trimEnd();
   const url = String(conversationUrl ?? "").trim();
-  const linkLine = url ? `Conversation URL: ${url}` : "Conversation URL:";
+  if (!url) {
+    return text;
+  }
 
+  const linkLine = `Conversation URL: ${url}`;
   return text ? `${text}\n\n${linkLine}` : linkLine;
 }
 
@@ -4906,7 +5017,6 @@ function formatFinalDeliveryText({
     : markdownForArtifacts(artifacts);
   const artifactLines = artifactDeliveryLines(artifacts);
   const url = String(conversationUrl ?? "").trim();
-  const linkLine = url ? `Conversation URL: ${url}` : "Conversation URL:";
   const parts = [];
 
   if (text) {
@@ -4918,7 +5028,9 @@ function formatFinalDeliveryText({
   if (artifactLines.length > 0) {
     parts.push(`Artifacts:\n${artifactLines.join("\n")}`);
   }
-  parts.push(linkLine);
+  if (url) {
+    parts.push(`Conversation URL: ${url}`);
+  }
 
   return parts.join("\n\n");
 }
@@ -4972,7 +5084,7 @@ function verbatimFinalResponse({
       kind: "complete-relay-delivery",
       appliesWhen: 'status is "complete" and finalDeliveryText is non-empty',
       instruction:
-        "Return finalDeliveryText exactly as the final user-facing answer. It includes the complete assistant text, generated image Markdown, returned artifact paths, and the conversation URL. Do not summarize, rewrite, omit, add a preface, or wrap it in another format.",
+        "Return finalDeliveryText exactly as the final user-facing answer. It includes the complete assistant text, generated image Markdown, returned artifact paths, and a conversation URL when ChatGPT exposes one. Do not summarize, rewrite, omit, add a preface, or wrap it in another format.",
     },
   };
 }

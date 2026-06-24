@@ -5,7 +5,7 @@
 重點先講：
 
 - `host-bridge` 不是 VM 專用
-- 它本質上是把「可控制的 Chrome + 已登入的 ChatGPT」包成一個 HTTP bridge
+- 它本質上是把「可控制的 Chrome + 可互動的 ChatGPT」包成一個 HTTP bridge
 - 任何能連到這個 bridge 的 Codex 執行環境都可以用
 
 ## 核心概念
@@ -13,7 +13,7 @@
 `GPT Relay` 需要三個條件：
 
 1. Codex 端已安裝 `GPT Relay` plugin
-2. 某個地方有可被控制的 Chrome，而且已登入 ChatGPT
+2. 某個地方有可被控制的 Chrome，且 ChatGPT 是已登入或可互動的訪客頁
 3. Codex 執行環境可以連到 `host-bridge`
 
 差別只在：
@@ -21,6 +21,15 @@
 - Chrome 跑在哪裡
 - Codex 跑在哪裡
 - `GPT_RELAY_HOST_BRIDGE_URL` 要指向哪裡
+
+## ChatGPT 存取模式
+
+部署模式決定 Codex、Chrome 與 bridge 在哪裡；存取模式決定 ChatGPT 可做什麼。兩者是獨立選擇。
+
+| 存取模式 | 可用 | 限制 |
+| --- | --- | --- |
+| 訪客（未登入） | 已驗證的純文字 relay；可選擇「保持登出狀態」。 | 不支援帳號模型、附件、圖片、Deep Research、conversation URL、續問或 polling。 |
+| 已登入 | 帳號畫面可見的模型與持久對話。 | 功能受帳號權限限制；host-bridge 的附件、圖片、Deep Research 與部分續問仍未完整驗證。 |
 
 ## Mode 1: Local Mode
 
