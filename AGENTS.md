@@ -1,6 +1,6 @@
 # Project Memory
 
-This repository contains a GPT Relay plugin that can route Codex tasks to ChatGPT.
+This repository contains relay plugins that route **Codex or Claude Code** tasks to ChatGPT or Gemini. Each relay is a stdio MCP server exposing `ask` / `continue` / `poll` / `list_sessions`.
 
 ## Current Working Path
 
@@ -24,16 +24,22 @@ Minimal relay success was verified with prompt:
 
 - `請只回覆 OK。`
 
-## Codex Entry Point
+## Entry Points
 
-In Codex CLI, type `@`, select **GPT Relay**, then describe the task to send to ChatGPT.
-The selected plugin provides MCP tools named `mcp__gpt_relay__ask`,
-`mcp__gpt_relay__continue`, `mcp__gpt_relay__poll`, and
-`mcp__gpt_relay__list_sessions`. Prefer these over the shell CLI because this VM's Codex
-sandbox cannot create a loopback interface.
+**Codex**: type `@`, select **GPT Relay** or **Gemini Relay**, then describe the task. Both
+relays provide MCP tools `ask` / `continue` / `poll` / `list_sessions` (Codex names them
+`mcp__gpt_relay__*` and `mcp__gemini_relay__*`). Prefer these over the shell CLI because this
+VM's Codex sandbox cannot create a loopback interface.
+
+**Claude Code**: register each relay once with `claude mcp add <name> -s user … -- node
+…/scripts/mcp_server.mjs` (host-bridge env). The same four tools are then available in any
+directory as `mcp__gpt-relay__*` / `mcp__gemini-relay__*`, plus the `/chatgpt*` and `/gemini*`
+slash commands shipped in `.claude/commands/`. See `docs/usage-codex-and-claude-code.md` and
+`docs/usage-gemini-codex-and-claude-code.md`.
 
 `codex-cli 0.141.0` did not register deprecated custom prompts as slash commands in a fresh TUI,
-despite the public manual documenting that surface. Do not direct users to `/prompts:*`.
+despite the public manual documenting that surface. Do not direct Codex users to `/prompts:*`
+(this does not affect Claude Code slash commands).
 
 ## Important Files
 
@@ -42,6 +48,11 @@ despite the public manual documenting that surface. Do not direct users to `/pro
 - `plugins/gpt-relay/scripts/adapters/host_bridge_adapter.mjs`
 - `plugins/gpt-relay/skills/gpt-relay/SKILL.md`
 - `plugins/gpt-relay/skills/relay-routing/SKILL.md`
+- `plugins/gemini-relay/scripts/gemini_relay.mjs`
+- `plugins/gemini-relay/scripts/mcp_server.mjs`
+- `plugins/gemini-relay/scripts/adapters/host_bridge_adapter.mjs`
+- `plugins/gemini-relay/skills/gemini-relay/SKILL.md`
+- `plugins/gemini-relay/skills/relay-routing/SKILL.md`
 - `host-bridge/server.mjs`
 - `user_quick_start.md`
 - `scripts/install-global-codex-relay.sh`
@@ -54,6 +65,7 @@ despite the public manual documenting that surface. Do not direct users to `/pro
 - Chinese ChatGPT UI fallbacks were added for composer, send button, and completion detection.
 - Access modes are distinct: `guest` supports plain text only; `logged-in` supports account-visible capabilities. Do not force a guest user to log in.
 - Guest sessions have no stable conversation URL. Never call `continue` or `poll` for them, and do not claim a conversation link was returned.
+- Gemini Relay is text-first (no attachments, image generation, or model switching), but has full `ask` / `continue` / `poll` / `list_sessions` with a session store. Signed-in chats capture a `gemini.google.com/app/<id>` URL and can be continued/polled; guest chats cannot (no stable URL).
 - Direct shell tests must provide explicit `statePath`, for example:
   - `/tmp/gpt-relay/sessions.json`
 - `host-bridge` is the current bridge path when Codex cannot directly drive the target Chrome session.
@@ -83,6 +95,9 @@ Proven:
 - `@` plugin selector shows GPT Relay in a fresh Codex TUI
 - MCP server protocol handshake and tool inventory in the plugin source
 - Windows local guest-mode plain-text relay, returning `OK` without a ChatGPT login
+- Gemini Relay plugin scaffold, MCP server, access-state rules, and tests in repo source
+- Gemini Relay live end-to-end on 2026-06-25: signed-in `ask` (captured `/app/<id>` URL), `continue` (Gemini recalled prior turn), `poll`, and `list_sessions` through the local host bridge
+- Claude Code user-scope registration of `gemini-relay` (and `gpt-relay`) verified ✔ Connected; `ask`/`continue`/`poll`/`list_sessions` exercised over stdio MCP
 
 Not yet fully validated after host-bridge integration:
 
@@ -90,4 +105,4 @@ Not yet fully validated after host-bridge integration:
 - file upload
 - image generation flow
 - Deep Research export
-- all continuation/polling variants
+- ChatGPT continuation/polling for long-running (Deep Research) tasks

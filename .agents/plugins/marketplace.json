@@ -1,7 +1,7 @@
 {
   "name": "gpt-relay-host-bridge",
   "interface": {
-    "displayName": "GPT Relay"
+    "displayName": "GPT & Gemini Relay"
   },
   "plugins": [
     {
@@ -9,6 +9,18 @@
       "source": {
         "source": "local",
         "path": "./plugins/gpt-relay"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "gemini-relay",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gemini-relay"
       },
       "policy": {
         "installation": "AVAILABLE",

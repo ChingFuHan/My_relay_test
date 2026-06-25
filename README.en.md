@@ -1,14 +1,21 @@
-# GPT Relay Codex Plugin
+# GPT Relay & Gemini Relay — for Codex and Claude Code
 
 [Main README](./README.md) | [中文说明](./README.zh-Hant.md)
 
-GPT Relay lets Codex delegate a task to ChatGPT through your existing Chrome session. It can request visible ChatGPT Intelligence combinations, wait for the final answer, and return the full result to Codex.
+This repository ships two browser relay plugins:
+
+- **GPT Relay** for **ChatGPT**.
+- **Gemini Relay** for **Gemini**.
+
+Each relay is a standard **stdio MCP server**, so the same plugin works from **Codex** and from **Claude Code** in any directory. Both relays expose the same four tools — `ask`, `continue`, `poll`, and `list_sessions` — and drive the chat through your existing Chrome session: they send the prompt, wait for the visible answer, and return the full result.
 
 ## Why This Exists
 
-Codex is excellent for coding work, local files, and automation. ChatGPT may have account-specific UI features such as Pro mode, Deep Research, image generation, and visible model/mode/effort controls. GPT Relay bridges those workflows by letting Codex operate ChatGPT in Chrome when you explicitly ask it to.
+Codex and Claude Code are excellent for coding work, local files, and automation. ChatGPT and Gemini have account-specific web UI features — Pro mode, Deep Research, image generation, visible model/mode/effort controls — that a coding agent cannot reach directly. These relays bridge that gap by operating the chat in Chrome when you explicitly ask, then handing the result back to your agent.
 
-## Installation
+The relay core makes no assumptions about which agent calls it. **Codex** picks it up from the plugin marketplace; **Claude Code** registers it with `claude mcp add` (see [Use From Claude Code](#use-from-claude-code)).
+
+## Install for Codex
 
 From the Codex UI:
 
@@ -16,18 +23,49 @@ From the Codex UI:
 | --- | --- |
 | Source | `ChingFuHan/My_relay_test` |
 | Git ref | `main` |
-| Sparse paths | Leave blank for normal install. Optional: `.agents/plugins` and `plugins/gpt-relay`. |
+| Sparse paths | Leave blank for normal install. Optional: `.agents/plugins`, `plugins/gpt-relay`, and `plugins/gemini-relay`. |
 
 Or add the marketplace from the CLI:
 
 ```bash
 codex plugin marketplace add ChingFuHan/My_relay_test --ref main
 codex plugin add gpt-relay@gpt-relay-host-bridge
+codex plugin add gemini-relay@gpt-relay-host-bridge
 ```
 
-Then install **GPT Relay** from the Codex Plugins UI and open a new Codex thread.
+Then install **GPT Relay** or **Gemini Relay** from the Codex Plugins UI and open a new Codex thread.
 
 The Add marketplace dialog installs this repository as a custom Codex marketplace source. It is not the same thing as publishing to an official built-in OpenAI marketplace.
+
+## Use From Claude Code
+
+Claude Code does not use the Codex marketplace or the Codex Chrome extension. It talks to each relay as a standard stdio MCP server over the `host-bridge` path. Register once at user scope and it is available in every directory.
+
+Start the host bridge first (see [Host-Bridge Deployment Modes](#host-bridge-deployment-modes)), then:
+
+```bash
+# ChatGPT relay
+claude mcp add gpt-relay -s user \
+  -e GPT_RELAY_BROWSER_PROVIDER=host-bridge \
+  -e GPT_RELAY_HOST_BRIDGE_URL=http://192.168.0.72:8765 \
+  -e GPT_RELAY_HOST_BRIDGE_TOKEN=change-me \
+  -e GPT_RELAY_STATE_PATH="$HOME/.codex/gpt-relay/sessions.json" \
+  -- node /absolute/path/to/plugins/gpt-relay/scripts/mcp_server.mjs
+
+# Gemini relay
+claude mcp add gemini-relay -s user \
+  -e GPT_RELAY_BROWSER_PROVIDER=host-bridge \
+  -e GPT_RELAY_HOST_BRIDGE_URL=http://192.168.0.72:8765 \
+  -e GPT_RELAY_HOST_BRIDGE_TOKEN=change-me \
+  -e GEMINI_RELAY_STATE_PATH="$HOME/.codex/gemini-relay/sessions.json" \
+  -- node /absolute/path/to/plugins/gemini-relay/scripts/mcp_server.mjs
+```
+
+Verify with `claude mcp get gpt-relay` / `claude mcp get gemini-relay` (Status: ✔ Connected). Use an absolute path to `mcp_server.mjs`, and `http://127.0.0.1:8765` if Claude Code runs on the same machine as Chrome.
+
+The relays then expose the `ask` / `continue` / `poll` / `list_sessions` tools. This repo also ships slash commands in [`.claude/commands/`](./.claude/commands/) — `/chatgpt`, `/chatgpt-continue`, `/chatgpt-poll`, `/chatgpt-list` and `/gemini`, `/gemini-continue`, `/gemini-poll`, `/gemini-list`. They auto-load inside this repo; run `cp .claude/commands/*.md ~/.claude/commands/` to use them anywhere.
+
+Full walkthrough: [docs/usage-codex-and-claude-code.md](./docs/usage-codex-and-claude-code.md) (ChatGPT) and [docs/usage-gemini-codex-and-claude-code.md](./docs/usage-gemini-codex-and-claude-code.md) (Gemini).
 
 ## Chrome Setup
 
@@ -61,15 +99,25 @@ If you want GPT Relay to upload local files or images to ChatGPT, enable file UR
 
 Guest mode is verified for Windows local host-bridge text relay. Signed-in attachments, image generation, Deep Research, and some continuation paths remain partially validated through host-bridge.
 
+## Gemini Access Modes
+
+`Gemini Relay` is text-first through Gemini's visible web UI, with the same `ask` / `continue` / `poll` / `list_sessions` tools as GPT Relay, backed by a session store:
+
+| State | Supported | Not supported |
+| --- | --- | --- |
+| **Guest** (not signed in) | Plain-text prompts and responses when Gemini exposes a usable signed-out composer. | Model switching, uploads, images; and — because there is no stable conversation URL — continuation and polling. |
+| **Signed in** | Plain-text prompts and responses; the conversation URL (`gemini.google.com/app/<id>`) is captured and stored, so the chat can be continued, polled, and listed. | Model switching, uploads, image generation. |
+| **Blocked** | No relay. | Gemini Relay reports login or verification errors without clicking sign-in controls. |
+
 ## Repository Layout
 
 ```text
 .agents/plugins/marketplace.json
 plugins/gpt-relay/
+plugins/gemini-relay/
   .codex-plugin/plugin.json
-  skills/gpt-relay/SKILL.md
-  scripts/chatgpt_relay.mjs
-  assets/logo.png
+  skills/
+  scripts/
 media/
   plugin-install-screen.png
   gpt-relay-demo.gif
@@ -123,7 +171,7 @@ bash scripts/install-global-codex-relay.sh \
 ```
 
 Open a new terminal and a new Codex thread in any repository. In the composer, type `@`, select
-**GPT Relay**, then enter the task for ChatGPT:
+**GPT Relay** or **Gemini Relay**, then enter the task:
 
 ```text
 Send this task to ChatGPT: <task>

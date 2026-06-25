@@ -1,5 +1,7 @@
 # GPT Relay Host-Bridge Quick Start
 
+> 本文以 **Codex + Windows host + Linux VM** 為例。host bridge 對 **Claude Code** 完全相同;Claude Code 端設定見 [docs/usage-codex-and-claude-code.md](./docs/usage-codex-and-claude-code.md) 與 [docs/usage-gemini-codex-and-claude-code.md](./docs/usage-gemini-codex-and-claude-code.md)。
+
 這份文件只寫「目前這次成功跑通」所需的最短流程。
 
 注意：

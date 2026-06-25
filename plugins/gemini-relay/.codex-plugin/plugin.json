@@ -1,0 +1,28 @@
+{
+  "name": "gemini-relay",
+  "version": "0.1.0+codex.2026062501",
+  "description": "Relay Codex prompts to Gemini and return the response.",
+  "author": {
+    "name": "Prompt Case"
+  },
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Gemini Relay",
+    "shortDescription": "Relay plain-text Gemini tasks from Codex.",
+    "longDescription": "Gemini Relay opens Gemini in the user's existing Chrome session, detects guest versus signed-in access, sends a plain-text prompt, waits for the visible Gemini response, and returns the completed answer. Signed-in conversations are stored so they can be continued, polled, and listed. Text-first: no model switching, attachments, or image generation; guest chats cannot be continued.",
+    "developerName": "Prompt Case",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Browser Automation",
+      "Long Running Tasks"
+    ],
+    "defaultPrompt": [
+      "Ask Gemini to summarize this issue.",
+      "Ask Gemini to critique this design.",
+      "Ask Gemini to explain this error."
+    ],
+    "brandColor": "#1A73E8"
+  }
+}

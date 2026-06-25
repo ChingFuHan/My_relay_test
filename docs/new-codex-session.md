@@ -1,5 +1,7 @@
 # New Codex Session With ChatGPT
 
+> 本文針對 **Codex**。**Claude Code** 不需每次設定,`claude mcp add … -s user` 註冊一次後任何目錄都能用 `ask`/`continue`/`poll`/`list_sessions` 或 `/chatgpt`、`/gemini` slash——見 [usage-codex-and-claude-code.md](./usage-codex-and-claude-code.md)。
+
 在任何 repo 中使用：
 
 ```bash

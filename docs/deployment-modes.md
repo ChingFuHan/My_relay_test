@@ -6,7 +6,7 @@
 
 - `host-bridge` 不是 VM 專用
 - 它本質上是把「可控制的 Chrome + 可互動的 ChatGPT」包成一個 HTTP bridge
-- 任何能連到這個 bridge 的 Codex 執行環境都可以用
+- 任何能連到這個 bridge 的 **Codex 或 Claude Code** 執行環境都可以用
 
 ## 核心概念
 

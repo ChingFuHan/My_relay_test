@@ -22,8 +22,9 @@
 - 已補上：ChatGPT `guest` / `logged-in` / `guest-or-logged-out` / `verification-required` 狀態判斷
 - 訪客只可做純文字 relay；不可要求登入、附件、圖片、Deep Research、續問或 polling
 - 已補上：可由 `@` 選取的 GPT Relay plugin，以及一般 Node CLI 入口
-- 已完成：**Claude Code 整合**。同一支 `mcp_server.mjs` 以 user scope 掛進 Claude Code（全域），實測 `ask` 經 :8765 → ChatGPT 回 OK。詳見 [usage-codex-and-claude-code.md](./usage-codex-and-claude-code.md)。
-- 未完全驗證：圖片流程、檔案上傳、Deep Research 匯出、部分 continuation/polling
+- 已新增：可由 `@` 選取的 Gemini Relay plugin。功能對齊 GPT Relay:`ask` / `continue` / `poll` / `list_sessions` + session 儲存。已登入可續問/輪詢,訪客只可純文字(無穩定對話 URL)。
+- 已完成：**Claude Code 整合(兩個 relay 皆是)**。同一支 `mcp_server.mjs` 以 user scope 掛進 Claude Code(全域)。2026-06-25 實測 Gemini 的 `ask`/`continue`/`poll`/`list_sessions` 經 :8765 全通,`gpt-relay`/`gemini-relay` 皆 ✔ Connected。詳見 [usage-codex-and-claude-code.md](./usage-codex-and-claude-code.md) 與 [usage-gemini-codex-and-claude-code.md](./usage-gemini-codex-and-claude-code.md)。
+- 未完全驗證:ChatGPT 圖片流程、檔案上傳、Deep Research 匯出、長任務 continuation/polling
 
 ## 關鍵路徑
 

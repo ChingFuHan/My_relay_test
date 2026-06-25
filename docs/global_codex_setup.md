@@ -1,5 +1,7 @@
 # Global Codex Setup
 
+> 本文是 **Codex** 的全域設定。用 **Claude Code** 的話更簡單,一行 `claude mcp add … -s user` 即全域可用——見 [usage-codex-and-claude-code.md](./usage-codex-and-claude-code.md)(ChatGPT)與 [usage-gemini-codex-and-claude-code.md](./usage-gemini-codex-and-claude-code.md)(Gemini)。
+
 這份文件讓新的 Codex CLI session，不論從哪個 repo 啟動，都能使用已登入或可互動訪客模式的 ChatGPT。
 它不會帶著前一個 Codex thread 的對話內容，但會帶著 GPT Relay 的 plugin、bridge 設定，以及已登入對話的 session metadata。
 
