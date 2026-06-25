@@ -44,7 +44,7 @@ codex
 
 不要手打 plugin 名稱；使用 `@` 選單來選取它。此入口已在 `codex-cli 0.141.0` 的全新 TUI 實測可見。
 
-本機的 custom prompts 雖然出現在部分文件中，但在此版本沒有註冊成 slash command，因此不要使用 `/prompts:chatgpt`。
+`scripts/install-global-codex-relay.sh` 會把 `codex/prompts/*.md` 裝到 `~/.codex/prompts/`,新開 Codex TUI 後即可用 `/chatgpt`、`/gemini` 等 slash(強制走 web,不本地作答)。舊的命名式 `/prompts:chatgpt` 已淘汰,改用 `/chatgpt`。
 
 ## 驗證
 

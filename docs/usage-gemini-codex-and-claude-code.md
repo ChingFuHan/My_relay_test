@@ -71,6 +71,21 @@ export GPT_RELAY_HOST_BRIDGE_TOKEN=change-me
 
 session 自動存 `~/.codex/gemini-relay/sessions.json`(不需設 `GEMINI_RELAY_STATE_PATH`)。
 
+### Slash 命令(Codex)
+
+`scripts/install-global-codex-relay.sh` 會把 `codex/prompts/*.md` 裝到 `~/.codex/prompts/`,
+新開 Codex TUI 後即有四個 slash(**強制走 web Gemini、不本地作答**):
+
+| Slash | 工具(Codex 底線式) | 用法 |
+| --- | --- | --- |
+| `/gemini <prompt>` | `mcp__gemini_relay__ask` | 新問題 |
+| `/gemini-continue <id> -- <追問>` | `mcp__gemini_relay__continue` | 續問已登入對話 |
+| `/gemini-poll <id>` | `mcp__gemini_relay__poll` | 不送新 prompt 重讀 |
+| `/gemini-list [關鍵字]` | `mcp__gemini_relay__list_sessions` | 列出 session |
+
+> slash 在 TUI 啟動時載入,裝完要**重開** Codex。需先 `codex plugin add gemini-relay@gpt-relay-host-bridge`
+> 讓 `gemini-relay` 的 MCP 工具可用。若某版不顯示 slash,改用 `@` 選 Gemini Relay。
+
 ---
 
 ## 3. Claude Code 怎麼用

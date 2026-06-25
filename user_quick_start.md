@@ -323,9 +323,10 @@ statePath: "/tmp/gpt-relay/sessions.json"
 先依 [docs/global_codex_setup.md](./docs/global_codex_setup.md) 完成一次全域安裝。之後在 Codex
 composer 輸入 `@`，選取 **GPT Relay** plugin，再輸入你要交給 ChatGPT 的任務。
 
-`codex-cli 0.141.0` 實測不會把 `~/.codex/prompts/` 註冊為 slash command，因此不要使用
-`/prompts:chatgpt`。`@` plugin 選取器是目前可驗證的入口；選取後，Codex 會呼叫 plugin
-內建的 MCP relay tool，不需要在 shell 裡執行 Node CLI。
+全域安裝會把 `codex/prompts/*.md` 裝到 `~/.codex/prompts/`,新開 Codex TUI 後可用
+`/chatgpt`、`/gemini` 等 slash(強制走 web,不本地作答);舊的 `/prompts:chatgpt` 命名式已淘汰。
+`@` plugin 選取器同樣可用。兩種入口選取後,Codex 都會呼叫 plugin 內建的 MCP relay tool,
+不需要在 shell 裡執行 Node CLI。(`codex-cli 0.141.0` 曾不註冊 prompts;現行 0.142.x 已可。)
 
 MCP tool 會讀取 `~/.config/gpt-relay/env.sh`。所以就算新開 Codex 的 GUI、IDE 或 shell
 沒有繼承 `GPT_RELAY_*` 環境變數，仍可使用同一套 bridge 設定。

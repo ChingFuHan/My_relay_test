@@ -108,6 +108,8 @@ cp .claude/commands/*.md ~/.claude/commands/
 | `/chatgpt-poll <id>` | `/gemini-poll <id>` | `poll` |
 | `/chatgpt-list` | `/gemini-list` | `list_sessions` |
 
+**Codex** has the same slash commands via [`codex/prompts/`](./codex/prompts/) — `scripts/install-global-codex-relay.sh` copies them to `~/.codex/prompts/` (open a new Codex TUI afterwards). They force the task onto the web relay and never answer locally. See [`codex/prompts/README.md`](./codex/prompts/README.md).
+
 ## Chrome Setup
 
 The direct browser-provider path needs the official Codex Chrome extension. The `host-bridge` path

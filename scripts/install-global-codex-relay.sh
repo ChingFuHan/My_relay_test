@@ -5,8 +5,11 @@ set -euo pipefail
 # every Codex CLI session launched by this user.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 CONFIG_DIR="${HOME}/.config/gpt-relay"
 ENV_FILE="${CONFIG_DIR}/env.sh"
+CODEX_PROMPTS_SRC="${REPO_DIR}/codex/prompts"
+CODEX_PROMPTS_DEST="${HOME}/.codex/prompts"
 MARKETPLACE_NAME="gpt-relay-host-bridge"
 MARKETPLACE_SOURCE="ChingFuHan/My_relay_test"
 BRIDGE_URL="${GPT_RELAY_HOST_BRIDGE_URL:-}"
@@ -101,6 +104,17 @@ else
   printf 'Kept GPT Relay environment loading in %s\n' "${RC_FILE}"
 fi
 
+# Install Codex slash prompts (/chatgpt, /gemini, ...) into ~/.codex/prompts.
+# These are independent of the plugin install and force every call onto the web relay.
+if [ -d "${CODEX_PROMPTS_SRC}" ]; then
+  install -d "${CODEX_PROMPTS_DEST}"
+  for prompt in "${CODEX_PROMPTS_SRC}"/*.md; do
+    [ "$(basename "${prompt}")" = "README.md" ] && continue
+    install -m 644 "${prompt}" "${CODEX_PROMPTS_DEST}/"
+  done
+  printf 'Installed Codex slash prompts into %s\n' "${CODEX_PROMPTS_DEST}"
+fi
+
 if [ "${SKIP_PLUGIN}" = false ]; then
   command -v codex >/dev/null || {
     printf '%s\n' 'codex was not found in PATH; bridge environment was configured but plugin installation was skipped.' >&2
@@ -117,15 +131,21 @@ if [ "${SKIP_PLUGIN}" = false ]; then
     codex plugin marketplace upgrade "${MARKETPLACE_NAME}"
   fi
   codex plugin add "gpt-relay@${MARKETPLACE_NAME}"
+  codex plugin add "gemini-relay@${MARKETPLACE_NAME}"
 fi
 
 cat <<EOF
 
 Global setup complete.
 
-Open a new shell (or run: . "${RC_FILE}"), then start Codex in any directory.
-In the Codex composer, type @, select GPT Relay, and enter the task for ChatGPT.
-The plugin MCP relay reads ${ENV_FILE} itself, including when Codex was not started from this shell.
+Open a new shell (or run: . "${RC_FILE}"), then start a NEW Codex TUI in any directory.
 
-The bridge must still be running and ChatGPT must remain logged in on its Chrome profile.
+Two ways to relay:
+- Slash commands (force the web service to answer): /chatgpt, /chatgpt-continue,
+  /chatgpt-poll, /chatgpt-list and /gemini, /gemini-continue, /gemini-poll, /gemini-list.
+  They load from ~/.codex/prompts at TUI startup.
+- Or type @, select GPT Relay / Gemini Relay, and enter the task.
+
+The plugin MCP relay reads ${ENV_FILE} itself, including when Codex was not started from this shell.
+The bridge must still be running and ChatGPT/Gemini must remain logged in on its Chrome profile.
 EOF

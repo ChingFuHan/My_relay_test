@@ -70,7 +70,20 @@ export GPT_RELAY_HOST_BRIDGE_TOKEN=change-me
 
 session 自動存 `~/.codex/gpt-relay/sessions.json`(不需設 `GPT_RELAY_STATE_PATH`)。
 
-> 注意:`/prompts:chatgpt` 這種 slash 在現行 codex-cli 不支援,請用 `@` 選 GPT Relay。
+### Slash 命令(Codex)
+
+`scripts/install-global-codex-relay.sh` 會把 `codex/prompts/*.md` 裝到 `~/.codex/prompts/`,
+新開 Codex TUI 後即有四個 slash(**強制走 web ChatGPT、不本地作答**):
+
+| Slash | 工具(Codex 底線式) | 用法 |
+| --- | --- | --- |
+| `/chatgpt <prompt>` | `mcp__gpt_relay__ask` | 新問題 |
+| `/chatgpt-continue <id> -- <追問>` | `mcp__gpt_relay__continue` | 續問已登入對話 |
+| `/chatgpt-poll <id>` | `mcp__gpt_relay__poll` | 不送新 prompt 重讀 |
+| `/chatgpt-list [關鍵字]` | `mcp__gpt_relay__list_sessions` | 列出 session |
+
+> slash 在 TUI 啟動時載入,裝完要**重開** Codex。`/prompts:chatgpt` 這種舊的命名式已淘汰,
+> 現行 0.142.x 用上面的 `/chatgpt`。若某版仍不顯示 slash,改用 `@` 選 GPT Relay。
 
 ---
 

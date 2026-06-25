@@ -37,9 +37,13 @@ directory as `mcp__gpt-relay__*` / `mcp__gemini-relay__*`, plus the `/chatgpt*` 
 slash commands shipped in `.claude/commands/`. See `docs/usage-codex-and-claude-code.md` and
 `docs/usage-gemini-codex-and-claude-code.md`.
 
-`codex-cli 0.141.0` did not register deprecated custom prompts as slash commands in a fresh TUI,
-despite the public manual documenting that surface. Do not direct Codex users to `/prompts:*`
-(this does not affect Claude Code slash commands).
+Codex slash commands: this repo ships `codex/prompts/*.md`, installed to `~/.codex/prompts/` by
+`scripts/install-global-codex-relay.sh`, giving `/chatgpt`, `/chatgpt-continue`, `/chatgpt-poll`,
+`/chatgpt-list` and the `/gemini*` set. They force the call onto the web relay (`mcp__gpt_relay__*`
+/ `mcp__gemini_relay__*`, underscore form) and forbid a local answer. Prompts load at TUI startup,
+so open a fresh Codex TUI after install. (Historical note: `codex-cli 0.141.0` did not register
+`~/.codex/prompts/` and the old `/prompts:*` namespaced form was dropped; current 0.142.x uses the
+bare `/<name>` form above. If a build still fails to show them, fall back to the `@` selector.)
 
 ## Important Files
 
