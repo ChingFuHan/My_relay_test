@@ -16,8 +16,8 @@ const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
 
     if (req.method === "GET" && url.pathname === "/health") {
-      await getBrowser();
-      return writeJson(res, 200, { ok: true, cdpUrl: CHROME_CDP_URL });
+      const browser = await getBrowser();
+      return writeJson(res, 200, { ok: browser.isConnected(), cdpUrl: CHROME_CDP_URL });
     }
 
     if (req.method === "GET" && url.pathname === "/documentation") {
@@ -109,9 +109,24 @@ function authorize(req) {
 }
 
 async function getBrowser() {
-  if (!browserPromise) {
-    browserPromise = chromium.connectOverCDP(CHROME_CDP_URL);
+  if (browserPromise) {
+    try {
+      const cached = await browserPromise;
+      if (cached.isConnected()) return cached;
+    } catch {
+      // fall through and reconnect
+    }
+    browserPromise = null;
+    tabs.clear();
   }
+  browserPromise = (async () => {
+    const browser = await chromium.connectOverCDP(CHROME_CDP_URL);
+    browser.on("disconnected", () => {
+      browserPromise = null;
+      tabs.clear();
+    });
+    return browser;
+  })();
   return await browserPromise;
 }
 
@@ -127,8 +142,17 @@ async function listTabs() {
 
 async function newPage() {
   const browser = await getBrowser();
-  const contexts = browser.contexts();
-  const context = contexts[0] ?? (await browser.newContext());
+  const context = browser.contexts()[0];
+  if (!context) {
+    const error = new Error(
+      "No Chrome browser context available. Is debug Chrome running on " +
+        CHROME_CDP_URL +
+        "?"
+    );
+    error.code = "NO_BROWSER_CONTEXT";
+    error.statusCode = 502;
+    throw error;
+  }
   return await context.newPage();
 }
 

@@ -23,6 +23,12 @@ Current known state:
 - Supports opening or claiming tabs
 - Supports navigation and Playwright-style RPC through `/tabs/:id/rpc`
 - Includes auth token support
+- Auto-reconnects to Chrome over CDP if the debug Chrome restarts. The cached
+  browser is validated with `isConnected()` before reuse, reconnects when stale,
+  and clears cached page handles on `disconnect`, so the relay can keep opening a
+  fresh ChatGPT tab without restarting the bridge.
+- `GET /health` reports the live `isConnected()` state instead of a false positive
+  from a stale cached connection.
 
 Still incomplete:
 
