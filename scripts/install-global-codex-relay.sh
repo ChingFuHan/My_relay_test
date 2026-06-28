@@ -8,8 +8,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 CONFIG_DIR="${HOME}/.config/gpt-relay"
 ENV_FILE="${CONFIG_DIR}/env.sh"
-CODEX_PROMPTS_SRC="${REPO_DIR}/codex/prompts"
-CODEX_PROMPTS_DEST="${HOME}/.codex/prompts"
+CODEX_SKILLS_SRC="${REPO_DIR}/codex/skills"
+CODEX_SKILLS_DEST="${HOME}/.codex/skills"
 MARKETPLACE_NAME="gpt-relay-host-bridge"
 MARKETPLACE_SOURCE="ChingFuHan/My_relay_test"
 BRIDGE_URL="${GPT_RELAY_HOST_BRIDGE_URL:-}"
@@ -104,15 +104,18 @@ else
   printf 'Kept GPT Relay environment loading in %s\n' "${RC_FILE}"
 fi
 
-# Install Codex slash prompts (/chatgpt, /gemini, ...) into ~/.codex/prompts.
-# These are independent of the plugin install and force every call onto the web relay.
-if [ -d "${CODEX_PROMPTS_SRC}" ]; then
-  install -d "${CODEX_PROMPTS_DEST}"
-  for prompt in "${CODEX_PROMPTS_SRC}"/*.md; do
-    [ "$(basename "${prompt}")" = "README.md" ] && continue
-    install -m 644 "${prompt}" "${CODEX_PROMPTS_DEST}/"
+# Install Codex slash commands as skills (/chatgpt, /gemini, ...) into
+# ~/.codex/skills. Codex surfaces ~/.codex/skills/<name>/SKILL.md as /<name>.
+# These force every call onto the web relay (they call the relay MCP tool).
+if [ -d "${CODEX_SKILLS_SRC}" ]; then
+  install -d "${CODEX_SKILLS_DEST}"
+  for skill_dir in "${CODEX_SKILLS_SRC}"/*/; do
+    [ -f "${skill_dir}SKILL.md" ] || continue
+    name="$(basename "${skill_dir}")"
+    install -d "${CODEX_SKILLS_DEST}/${name}"
+    install -m 644 "${skill_dir}SKILL.md" "${CODEX_SKILLS_DEST}/${name}/SKILL.md"
   done
-  printf 'Installed Codex slash prompts into %s\n' "${CODEX_PROMPTS_DEST}"
+  printf 'Installed Codex relay skills into %s\n' "${CODEX_SKILLS_DEST}"
 fi
 
 if [ "${SKIP_PLUGIN}" = false ]; then
@@ -143,7 +146,7 @@ Open a new shell (or run: . "${RC_FILE}"), then start a NEW Codex TUI in any dir
 Two ways to relay:
 - Slash commands (force the web service to answer): /chatgpt, /chatgpt-continue,
   /chatgpt-poll, /chatgpt-list and /gemini, /gemini-continue, /gemini-poll, /gemini-list.
-  They load from ~/.codex/prompts at TUI startup.
+  They are installed as skills in ~/.codex/skills and load at TUI startup.
 - Or type @, select GPT Relay / Gemini Relay, and enter the task.
 
 The plugin MCP relay reads ${ENV_FILE} itself, including when Codex was not started from this shell.

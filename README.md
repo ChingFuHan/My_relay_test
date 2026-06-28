@@ -108,7 +108,7 @@ cp .claude/commands/*.md ~/.claude/commands/
 | `/chatgpt-poll <id>` | `/gemini-poll <id>` | `poll` |
 | `/chatgpt-list` | `/gemini-list` | `list_sessions` |
 
-**Codex** has the same slash commands via [`codex/prompts/`](./codex/prompts/) — `scripts/install-global-codex-relay.sh` copies them to `~/.codex/prompts/` (open a new Codex TUI afterwards). They force the task onto the web relay and never answer locally. See [`codex/prompts/README.md`](./codex/prompts/README.md).
+**Codex** gets the same slash commands as skills in [`codex/skills/`](./codex/skills/) — `scripts/install-global-codex-relay.sh` copies them to `~/.codex/skills/` (open a new Codex TUI afterwards). Codex turns `~/.codex/skills/<name>/SKILL.md` into the `/<name>` command (the same mechanism behind `/caveman`). They force the task onto the web relay and never answer locally. See [`codex/skills/README.md`](./codex/skills/README.md).
 
 ## Chrome Setup
 
@@ -187,7 +187,7 @@ Start here:
 
 ## Use In Every Session
 
-**Codex** — install the plugin, shell environment, and native Codex slash prompts once:
+**Codex** — install the plugin, shell environment, and Codex relay skills (slash commands) once:
 
 ```bash
 bash scripts/install-global-codex-relay.sh \

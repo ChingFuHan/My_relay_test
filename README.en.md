@@ -65,7 +65,7 @@ Verify with `claude mcp get gpt-relay` / `claude mcp get gemini-relay` (Status: 
 
 The relays then expose the `ask` / `continue` / `poll` / `list_sessions` tools. This repo also ships slash commands in [`.claude/commands/`](./.claude/commands/) — `/chatgpt`, `/chatgpt-continue`, `/chatgpt-poll`, `/chatgpt-list` and `/gemini`, `/gemini-continue`, `/gemini-poll`, `/gemini-list`. They auto-load inside this repo; run `cp .claude/commands/*.md ~/.claude/commands/` to use them anywhere.
 
-**Codex** gets the same slash commands from [`codex/prompts/`](./codex/prompts/) (installed to `~/.codex/prompts/` by `scripts/install-global-codex-relay.sh`). They force the task onto the web relay and never answer locally — open a new Codex TUI after install. See [`codex/prompts/README.md`](./codex/prompts/README.md).
+**Codex** gets the same slash commands as skills in [`codex/skills/`](./codex/skills/) (installed to `~/.codex/skills/` by `scripts/install-global-codex-relay.sh`). Codex turns `~/.codex/skills/<name>/SKILL.md` into the `/<name>` command (same mechanism as `/caveman`). They force the task onto the web relay and never answer locally — open a new Codex TUI after install. See [`codex/skills/README.md`](./codex/skills/README.md).
 
 Full walkthrough: [docs/usage-codex-and-claude-code.md](./docs/usage-codex-and-claude-code.md) (ChatGPT) and [docs/usage-gemini-codex-and-claude-code.md](./docs/usage-gemini-codex-and-claude-code.md) (Gemini).
 

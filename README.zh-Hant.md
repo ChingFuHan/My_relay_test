@@ -80,7 +80,7 @@ claude mcp add gemini-relay -s user \
 
 註冊後即可用 `ask` / `continue` / `poll` / `list_sessions` 四個工具。本 repo 也在 [`.claude/commands/`](./.claude/commands/) 附了 slash 命令:`/chatgpt`、`/chatgpt-continue`、`/chatgpt-poll`、`/chatgpt-list` 與 `/gemini`、`/gemini-continue`、`/gemini-poll`、`/gemini-list`。在 repo 內開 Claude Code 會自動載入;要全域用就 `cp .claude/commands/*.md ~/.claude/commands/`。
 
-**Codex 也有同樣的 slash**:放在 [`codex/prompts/`](./codex/prompts/),由 `scripts/install-global-codex-relay.sh` 裝到 `~/.codex/prompts/`(裝完重開 Codex TUI)。它們會**強制走 web、不本地作答**。詳見 [`codex/prompts/README.md`](./codex/prompts/README.md)。
+**Codex 也有同樣的 slash**:以 skills 形式放在 [`codex/skills/`](./codex/skills/),由 `scripts/install-global-codex-relay.sh` 裝到 `~/.codex/skills/`(裝完重開 Codex TUI)。Codex 會把 `~/.codex/skills/<name>/SKILL.md` 變成 `/<name>` 命令(與 `/caveman` 同機制)。它們會**強制走 web、不本地作答**。詳見 [`codex/skills/README.md`](./codex/skills/README.md)。
 
 完整教學:[docs/usage-codex-and-claude-code.md](./docs/usage-codex-and-claude-code.md)(ChatGPT)與 [docs/usage-gemini-codex-and-claude-code.md](./docs/usage-gemini-codex-and-claude-code.md)(Gemini)。
 

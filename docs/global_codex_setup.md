@@ -44,7 +44,7 @@ codex
 
 不要手打 plugin 名稱；使用 `@` 選單來選取它。此入口已在 `codex-cli 0.141.0` 的全新 TUI 實測可見。
 
-`scripts/install-global-codex-relay.sh` 會把 `codex/prompts/*.md` 裝到 `~/.codex/prompts/`,新開 Codex TUI 後即可用 `/chatgpt`、`/gemini` 等 slash(強制走 web,不本地作答)。舊的命名式 `/prompts:chatgpt` 已淘汰,改用 `/chatgpt`。
+`scripts/install-global-codex-relay.sh` 會把 `codex/skills/*` 裝到 `~/.codex/skills/`(Codex 把 `~/.codex/skills/<name>/SKILL.md` 變成 `/<name>`,與 `/caveman` 同機制),新開 Codex TUI 後即可用 `/chatgpt`、`/gemini` 等 slash(強制走 web,不本地作答)。(`~/.codex/prompts/` 不是 slash 來源;舊的 `/prompts:chatgpt` 命名式已淘汰。)
 
 ## 驗證
 

@@ -37,13 +37,15 @@ directory as `mcp__gpt-relay__*` / `mcp__gemini-relay__*`, plus the `/chatgpt*` 
 slash commands shipped in `.claude/commands/`. See `docs/usage-codex-and-claude-code.md` and
 `docs/usage-gemini-codex-and-claude-code.md`.
 
-Codex slash commands: this repo ships `codex/prompts/*.md`, installed to `~/.codex/prompts/` by
-`scripts/install-global-codex-relay.sh`, giving `/chatgpt`, `/chatgpt-continue`, `/chatgpt-poll`,
-`/chatgpt-list` and the `/gemini*` set. They force the call onto the web relay (`mcp__gpt_relay__*`
-/ `mcp__gemini_relay__*`, underscore form) and forbid a local answer. Prompts load at TUI startup,
-so open a fresh Codex TUI after install. (Historical note: `codex-cli 0.141.0` did not register
-`~/.codex/prompts/` and the old `/prompts:*` namespaced form was dropped; current 0.142.x uses the
-bare `/<name>` form above. If a build still fails to show them, fall back to the `@` selector.)
+Codex slash commands are SKILLS, not prompts. This repo ships `codex/skills/<name>/SKILL.md`,
+installed to `~/.codex/skills/` by `scripts/install-global-codex-relay.sh`, giving `/chatgpt`,
+`/chatgpt-continue`, `/chatgpt-poll`, `/chatgpt-list` and the `/gemini*` set. Codex turns
+`~/.codex/skills/<name>/SKILL.md` (frontmatter `name:`/`description:`) into `/<name>` — the same
+mechanism behind `/caveman`. Each skill body forces the call onto the web relay (`mcp__gpt_relay__*`
+/ `mcp__gemini_relay__*`, underscore form) and forbids a local answer. Skills load at TUI startup,
+so open a fresh Codex TUI after install. (Historical note: `~/.codex/prompts/*.md` is NOT a slash
+source — an earlier attempt there produced no commands; the old `/prompts:*` form was dropped. If a
+build still fails to show them, fall back to the `@` selector.)
 
 ## Important Files
 

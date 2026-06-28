@@ -73,8 +73,9 @@ session 自動存 `~/.codex/gemini-relay/sessions.json`(不需設 `GEMINI_RELAY_
 
 ### Slash 命令(Codex)
 
-`scripts/install-global-codex-relay.sh` 會把 `codex/prompts/*.md` 裝到 `~/.codex/prompts/`,
-新開 Codex TUI 後即有四個 slash(**強制走 web Gemini、不本地作答**):
+`scripts/install-global-codex-relay.sh` 會把 `codex/skills/*` 裝到 `~/.codex/skills/`(Codex 把
+`~/.codex/skills/<name>/SKILL.md` 變成 `/<name>`,與 `/caveman` 同機制),新開 Codex TUI 後即有四個
+slash(**強制走 web Gemini、不本地作答**):
 
 | Slash | 工具(Codex 底線式) | 用法 |
 | --- | --- | --- |
